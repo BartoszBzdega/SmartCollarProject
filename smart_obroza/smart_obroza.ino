@@ -3,7 +3,7 @@
 #include "Adafruit_BLE.h"
 #include "Adafruit_BluefruitLE_SPI.h"
 #include "Adafruit_BluefruitLE_UART.h"
-
+#include "Adafruit_NeoPixel.h"
 
 #if SOFTWARE_SERIAL_AVAILABLE
   #include <SoftwareSerial.h>
@@ -11,7 +11,7 @@
 
 #define Blue_rx                           0
 #define Blue_tx                           1
-#define Board_LED                         7
+#define Board_LED                         8
 #define BLUEFRUIT_UART_MODE_PIN           -1 
 #define BLUEFRUIT_UART_CTS_PIN            -1 
 #define BLUEFRUIT_UART_RTS_PIN            -1 
@@ -23,6 +23,7 @@
 #define BLUEFRUIT_HWSERIAL_NAME           Serial1
 
 Adafruit_BluefruitLE_UART ble(BLUEFRUIT_HWSERIAL_NAME, BLUEFRUIT_UART_MODE_PIN);
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(1, Board_LED, NEO_GRB + NEO_KHZ800);
 
 void error(const __FlashStringHelper*err) {
   Serial.println(err);
@@ -30,6 +31,7 @@ void error(const __FlashStringHelper*err) {
 }
 
 void setup() {
+  pixels.begin();
    while (!Serial);  // required for Flora & Micro
   delay(500);
 
@@ -63,7 +65,6 @@ void setup() {
   ble.info();
 
   Serial.println(F("Please use Adafruit Bluefruit LE app to connect in UART mode"));
-  Serial.println(F("Then Enter characters to send to Bluefruit"));
   Serial.println();
 
   ble.verbose(false);  // debug info is a little annoying after this point!
@@ -82,11 +83,22 @@ void setup() {
     ble.sendCommandCheckOK("AT+HWModeLED=" MODE_LED_BEHAVIOUR);
     Serial.println(F("******************************"));
   }
+
 }
 
 void loop() {
+  pixels.clear();
+  delay(1000);
   ble.print("AT+BLEUARTTX=");
-    ble.println("GPSSIGNALMF");// SEND DATA
-
-
+  ble.println("GPSSIGNALMF");// SEND DATA
+  pixels.setPixelColor(1, pixels.Color(0, 150, 0));
+  pixels.show();
+ble.println("AT+BLEUARTRX");
+  ble.readline();
+  if (strcmp(ble.buffer, "OK") == 0) {
+    // no data
+    return;
+  }
+   Serial.print(F("[Recv] ")); Serial.println(ble.buffer);
+  ble.waitForOK();
 }
