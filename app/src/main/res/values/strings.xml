@@ -558,7 +558,8 @@
 	<string name="imagetransfer_cameraneeded">Access to the camera is needed to take pictures</string>
 	<string name="imagetransfer_readexternalneeded">Access to the media library is needed to choose picture</string>
 
-
+	<!-- Map -->
+	<string name="map_tab_title">Map</string>
 
 
 
