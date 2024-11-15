@@ -39,4 +39,5 @@ public class InformationPreview extends ConnectedPeripheralFragment implements U
     //1) wykres dni od czasu spaceru (wykres liniowy)
     //2) wykres dni od dystansu pokonanego podczas spacer (wykres kolumnowy)
     // mowiac o dniach, jest to przedzial czasowy gdzie byla uruchomiona aplikacja, mozna wybrac od kiedy do kiedy pokazujemy dane (np tydzien, docelowo - od wybranej do wybranej daty)
+    //zapis danych do plikow lokalnie  wstepnie zapis uruchomienia aplikacji - data i czas
 }
