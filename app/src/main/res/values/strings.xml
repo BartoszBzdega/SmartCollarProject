@@ -561,7 +561,8 @@
 	<!-- Map -->
 	<string name="map_tab_title">Map</string>
 
-
+	<!-- InformationPreview -->
+	<string name="informationPreview">Information Perview</string>
 
 	<!-- Common -->
 	<string name="dialog_ok">OK</string>
