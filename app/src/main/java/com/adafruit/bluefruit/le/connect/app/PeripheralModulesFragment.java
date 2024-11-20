@@ -59,6 +59,8 @@ public class PeripheralModulesFragment extends ConnectedPeripheralFragment {
     private final static int MODULE_IMAGETRANSFER = 8;
     private final static int MODULE_CIRCUITPYTHON = 9;
     private final static int MODULE_DFU = 10;
+    private final static int MODULE_MAP = 11;
+    private final static int MODULE_INFORMATION_PREVIEW = 12;
 
     // Data
     private PeripheralModulesFragmentListener mListener;
@@ -270,6 +272,14 @@ public class PeripheralModulesFragment extends ConnectedPeripheralFragment {
                     fragment = DfuFragment.newInstance(singlePeripheralIdentifier);
                 }
                 break;
+
+            case MODULE_MAP: // TO DODAJE INSTANCJE FRAGMENTU (Czyli przycisk)
+                fragment = MapFragment.newInstance(singlePeripheralIdentifier);
+                break;
+
+            case MODULE_INFORMATION_PREVIEW:
+                fragment = InformationPreview.newInstance(singlePeripheralIdentifier);
+                break;
         }
 
         if (fragment != null && mListener != null) {
@@ -464,6 +474,16 @@ public class PeripheralModulesFragment extends ConnectedPeripheralFragment {
                             iconDrawableId = R.drawable.tab_dfu_icon;
                             titleId = R.string.dfu_tab_title;
                             break;
+
+                        case MODULE_MAP:
+                            iconDrawableId = R.drawable.tab_dfu_icon; // TODO: ZMIENIC IKONE
+                            titleId = R.string.map_tab_title;
+                            break;
+
+                        case MODULE_INFORMATION_PREVIEW:
+                            iconDrawableId = R.drawable.tab_dfu_icon; // TODO: ZMIENIC IKONE
+                            titleId = R.string.informationPreview;
+                            break;
                     }
 
                     ModuleViewHolder moduleViewHolder = (ModuleViewHolder) holder;
@@ -507,7 +527,7 @@ public class PeripheralModulesFragment extends ConnectedPeripheralFragment {
 
                 List<Integer> modules = new ArrayList<>(Collections.singletonList(MODULE_INFO));
                 if (hasUart) {
-                    modules.addAll(Arrays.asList(MODULE_UART, MODULE_PLOTTER, MODULE_PINIO, MODULE_CONTROLLER, MODULE_NEOPIXEL, MODULE_THERMALCAMERA, MODULE_IMAGETRANSFER));
+                    modules.addAll(Arrays.asList(MODULE_UART, MODULE_PLOTTER, MODULE_PINIO, MODULE_CONTROLLER, MODULE_NEOPIXEL, MODULE_THERMALCAMERA, MODULE_IMAGETRANSFER, MODULE_MAP, MODULE_INFORMATION_PREVIEW));
                 }
                 if (hasCircuitPython) {
                     modules.add(MODULE_CIRCUITPYTHON);
