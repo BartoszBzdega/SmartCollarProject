@@ -14,6 +14,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
@@ -72,6 +74,14 @@ public class MainActivity extends AppCompatActivity implements ScannerFragment.S
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Button b = findViewById(R.id.TestButton);
+        b.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showPeripheralModulesFragment();
+            }
+        });
+
         FragmentManager fragmentManager = getSupportFragmentManager();
         if (savedInstanceState == null) {
             // Set mainmenu fragment
@@ -104,6 +114,14 @@ public class MainActivity extends AppCompatActivity implements ScannerFragment.S
             updateAndroidSecurityProvider(this);        // Call this before refreshSoftwareUpdatesDatabase because SSL connections will fail on Android 4.4 if this is not executed:  https://stackoverflow.com/questions/29916962/javax-net-ssl-sslhandshakeexception-javax-net-ssl-sslprotocolexception-ssl-han
             DfuUpdater.refreshSoftwareUpdatesDatabase(this, success -> Log.d(TAG, "refreshSoftwareUpdatesDatabase completed. Success: " + success));
         }
+    }
+
+    private void showPeripheralModulesFragment() {
+        Fragment fragment = new PeripheralModulesFragment();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.contentLayout, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 
     protected void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
