@@ -35,6 +35,8 @@ public class InformationPreview extends ConnectedPeripheralFragment implements U
 
     }
 
+    //TODO: zapisac dane do json i odczytywac je w wykresie
+    //zapisujemy daty, odleglosc, czas (przykladowe na poczatek)
     //TODO: 2 wykresy dodac zeby widoczne byly
     //1) wykres dni od czasu spaceru (wykres liniowy)
     //2) wykres dni od dystansu pokonanego podczas spacer (wykres kolumnowy)
