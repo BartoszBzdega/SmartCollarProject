@@ -28,6 +28,8 @@
 Adafruit_BluefruitLE_UART ble(BLUEFRUIT_HWSERIAL_NAME, BLUEFRUIT_UART_MODE_PIN);
 Adafruit_LSM9DS0 lsm = Adafruit_LSM9DS0(1000);
 
+float GPSdataArray[2];
+
 void error(const __FlashStringHelper*err) {
   Serial.println(err);
   while (1);
@@ -105,25 +107,28 @@ void configureSensor(void)
 void setup() {
    while (!Serial);  // required for Flora & Micro
   delay(500);
+    Wire.begin(8);                // join i2c bus with address #8
 
+    Wire.onReceive(receiveEvent); // register event
   Serial.begin(9600);
-// ACCELOMETER INITIALISATION
-  if(!lsm.begin())
-  {
-    /* There was a problem detecting the LSM9DS0 ... check your connections */
-    Serial.print(F("Ooops, no LSM9DS0 detected ... Check your wiring or I2C ADDR!"));
-    while(1);
-  }
-  Serial.println(F("Found LSM9DS0 9DOF"));
+
+// // ACCELOMETER INITIALISATION
+//   if(!lsm.begin())
+//   {
+//     /* There was a problem detecting the LSM9DS0 ... check your connections */
+//     Serial.print(F("Ooops, no LSM9DS0 detected ... Check your wiring or I2C ADDR!"));
+//     while(1);
+//   }
+//   Serial.println(F("Found LSM9DS0 9DOF"));
   
-  /* Display some basic information on this sensor */
-  displaySensorDetails();
+//   /* Display some basic information on this sensor */
+//   displaySensorDetails();
   
-  /* Setup the sensor gain and integration time */
-  configureSensor();
+//   /* Setup the sensor gain and integration time */
+//   configureSensor();
   
-  /* We're ready to go! */
-  Serial.println("");
+//   /* We're ready to go! */
+//   Serial.println("");
   ////// BLUETOOTH INIT
   Serial.println(F("Adafruit Bluefruit Command Mode Example"));
   Serial.println(F("---------------------------------------"));
@@ -165,18 +170,26 @@ void setup() {
 
 
 }
-void loop() {
+void loop() 
+{
   delay(1000);
-  ble.print("AT+BLEUARTTX=");
   //ble.println("GPSSIGNALMF");// SEND DATA
 
-sensors_event_t accel, mag, gyro, temp;
+// sensors_event_t accel, mag, gyro, temp;
 
-  lsm.getEvent(&accel, &mag, &gyro, &temp); 
+//   lsm.getEvent(&accel, &mag, &gyro, &temp); 
 
-  // print out accelleration data
-  ble.print("X: "); ble.print(accel.acceleration.x); ble.print(" ");
-  ble.print("  \tY: "); ble.print(accel.acceleration.y);       ble.print(" ");
-  ble.print("  \tZ: "); ble.print(accel.acceleration.z);     ble.println("  \tm/s^2");
-
+//   // print out accelleration data
+  
+//   ble.print("X:"); ble.print(accel.acceleration.x);
+//   ble.print("Y:"); ble.print(accel.acceleration.y);
+//   ble.print("Z:"); ble.print(accel.acceleration.z);
+}
+void receiveEvent() {
+   for(int i=0; i<2; i++)
+  {
+    GPSdataArray[i] = Wire.read();
+    Serial.println(GPSdataArray[i]);
+    ble.print(GPSdataArray[i]);
+    }
 }
