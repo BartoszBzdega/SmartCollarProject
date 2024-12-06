@@ -517,7 +517,7 @@ public class PeripheralModulesFragment extends ConnectedPeripheralFragment {
 
         private int[] getMenuItems() {
             if (mConnectionMode == CONNECTIONMODE_MULTIPLEPERIPHERAL) {
-                return new int[]{MODULE_UART, MODULE_PLOTTER};
+                return new int[]{MODULE_UART, MODULE_PLOTTER, MODULE_MAP, MODULE_INFORMATION_PREVIEW};
             } else if (mBlePeripheral == null) {
                 return new int[]{};
             } else {
