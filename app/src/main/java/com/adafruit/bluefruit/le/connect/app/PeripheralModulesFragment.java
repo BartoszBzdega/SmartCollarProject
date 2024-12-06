@@ -527,7 +527,7 @@ public class PeripheralModulesFragment extends ConnectedPeripheralFragment {
 
                 List<Integer> modules = new ArrayList<>(Collections.singletonList(MODULE_INFO));
                 if (hasUart) {
-                    modules.addAll(Arrays.asList(MODULE_UART, MODULE_PLOTTER, MODULE_PINIO, MODULE_CONTROLLER, MODULE_NEOPIXEL, MODULE_THERMALCAMERA, MODULE_IMAGETRANSFER, MODULE_MAP, MODULE_INFORMATION_PREVIEW));
+                    modules.addAll(Arrays.asList(MODULE_UART, MODULE_PLOTTER, MODULE_PINIO, MODULE_CONTROLLER, MODULE_NEOPIXEL, MODULE_THERMALCAMERA, MODULE_IMAGETRANSFER)); //TODO: Pod koniec wrzucic tu MODULE_MAP
                 }
                 if (hasCircuitPython) {
                     modules.add(MODULE_CIRCUITPYTHON);
