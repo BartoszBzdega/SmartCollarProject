@@ -49,10 +49,6 @@ public class InformationPreview extends ConnectedPeripheralFragment implements U
             EditText placeholder;
             DataStorage dts = new DataStorage();
 
-            placeholder = getView().findViewById(R.id.editTextDate);
-            String date = placeholder.getText().toString();
-
-
             placeholder=getView().findViewById(R.id.editTextDistance);
             float distance = Float.valueOf(placeholder.getText().toString());
 
@@ -61,7 +57,7 @@ public class InformationPreview extends ConnectedPeripheralFragment implements U
 
             File path = getActivity().getFilesDir();
             Log.d("I",path.toString());
-            dts.saveWalkData(distance,time,date,path);
+            dts.saveWalkData(distance,time,path);
 
         });
 
@@ -70,8 +66,20 @@ public class InformationPreview extends ConnectedPeripheralFragment implements U
         buttonPetData.setOnClickListener(v->{
 
             DataStorage dts = new DataStorage();
+            EditText placeholder;
 
+            placeholder = getView().findViewById(R.id.editTextName);
+            String name = placeholder.getText().toString();
 
+            placeholder = getView().findViewById(R.id.editTextAge);
+            int age = Integer.parseInt(placeholder.getText().toString());
+
+            placeholder = getView().findViewById(R.id.editTextWeight);
+            float weight = Float.parseFloat(placeholder.getText().toString());
+
+            File path = getActivity().getFilesDir();
+
+            dts.savePetInfo(name,age,weight, path);
 
         });
     }
@@ -83,8 +91,7 @@ public class InformationPreview extends ConnectedPeripheralFragment implements U
     }
 
 
-    //TODO: zapisac dane do json i odczytywac je w wykresie
-    //zapisujemy daty, odleglosc, czas (przykladowe na poczatek)
+
     //TODO: 2 wykresy dodac zeby widoczne byly
     //1) wykres dni od czasu spaceru (wykres liniowy)
     //2) wykres dni od dystansu pokonanego podczas spacer (wykres kolumnowy)
