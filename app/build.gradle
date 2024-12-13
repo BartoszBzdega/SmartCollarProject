@@ -43,9 +43,13 @@ dependencies {
 
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.google.android.gms:play-services-maps:19.0.0'
     androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+    //osmdroid Service
+    implementation 'org.osmdroid:osmdroid-android:6.1.15'
+
 
     // Support library
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
