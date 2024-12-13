@@ -517,7 +517,7 @@ public class PeripheralModulesFragment extends ConnectedPeripheralFragment {
 
         private int[] getMenuItems() {
             if (mConnectionMode == CONNECTIONMODE_MULTIPLEPERIPHERAL) {
-                return new int[]{MODULE_UART, MODULE_PLOTTER};
+                return new int[]{MODULE_UART, MODULE_PLOTTER, MODULE_MAP, MODULE_INFORMATION_PREVIEW};
             } else if (mBlePeripheral == null) {
                 return new int[]{};
             } else {
@@ -527,7 +527,7 @@ public class PeripheralModulesFragment extends ConnectedPeripheralFragment {
 
                 List<Integer> modules = new ArrayList<>(Collections.singletonList(MODULE_INFO));
                 if (hasUart) {
-                    modules.addAll(Arrays.asList(MODULE_UART, MODULE_PLOTTER, MODULE_PINIO, MODULE_CONTROLLER, MODULE_NEOPIXEL, MODULE_THERMALCAMERA, MODULE_IMAGETRANSFER, MODULE_MAP, MODULE_INFORMATION_PREVIEW));
+                    modules.addAll(Arrays.asList(MODULE_UART, MODULE_PLOTTER, MODULE_PINIO, MODULE_CONTROLLER, MODULE_NEOPIXEL, MODULE_THERMALCAMERA, MODULE_IMAGETRANSFER));
                 }
                 if (hasCircuitPython) {
                     modules.add(MODULE_CIRCUITPYTHON);

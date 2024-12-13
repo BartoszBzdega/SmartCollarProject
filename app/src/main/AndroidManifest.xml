@@ -52,8 +52,14 @@
     <!-- Image Transfer -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
+    <!-- External storage-->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
+
     <!-- MQTT -->
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"
+        tools:ignore="ProtectedPermissions" />
 
     <!-- App -->
     <application
@@ -101,6 +107,8 @@
 
         <!-- DFU Notification -->
         <activity android:name=".dfu.NotificationActivity" />
+
+
 
         <!-- FileProvider -->
         <provider
