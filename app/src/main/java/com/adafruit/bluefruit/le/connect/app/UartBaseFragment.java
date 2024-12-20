@@ -697,6 +697,8 @@ public abstract class UartBaseFragment extends ConnectedPeripheralFragment imple
         }
     }
 
+
+    //TODO: dane z pakietow
     private static SpannableString stringFromPacket(UartPacket packet, boolean useHexMode, int color, boolean isBold) {
         final byte[] bytes = packet.getData();
         final String formattedData = useHexMode ? BleUtils.bytesToHex2(bytes) : BleUtils.bytesToText(bytes, true);

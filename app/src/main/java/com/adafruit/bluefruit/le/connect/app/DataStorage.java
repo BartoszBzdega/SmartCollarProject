@@ -1,6 +1,7 @@
 package com.adafruit.bluefruit.le.connect.app;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.core.content.ContextCompat;
 
@@ -12,6 +13,8 @@ import java.io.FileWriter;
 import java.io.IOException;  // Import the IOException class to handle errors
 import java.io.OutputStreamWriter;
 import java.io.RandomAccessFile;
+import java.util.Calendar;
+import java.util.Date;
 
 public class DataStorage {
 
@@ -55,68 +58,58 @@ public class DataStorage {
     }
 
     //save data from walks
-    public void saveWalkData(float walkDistance,float walkTime,String walkDate, File path){
+    public void saveWalkData(float walkDistance,float walkTime, File path){
 
         try{
 
             //File path =DataStorage.getFilesDir();
             File plik=new File(path,fileName);
 
-            if(!plik.exists()){
+            Date data = Calendar.getInstance().getTime();
+            Log.d("Data:", data.toString());
+
+            if(!plik.exists()) {
                 plik.createNewFile();
-            }
+
                 FileOutputStream fos = new FileOutputStream(plik);
                 OutputStreamWriter osw = new OutputStreamWriter(fos);
-                osw.write("okolwiek");
-                osw.flush();
-                fos.getFD().sync();
-                osw.close();
-
-//TODO: wyczaoic zapisywanie do pliku
-                //try(FileOutputStream fos = fileoutputStream){}
-
                 JSONObject jobject = new JSONObject();
                 JSONArray jarray = new JSONArray();
                 JSONObject jvalues = new JSONObject();
-                jvalues.put("Date",walkDate);
-                jvalues.put("Distance",walkDistance);
-                jvalues.put("Time",walkTime);
+                jvalues.put("Date", data);
+                jvalues.put("Distance", walkDistance);
+                jvalues.put("Time", walkTime);
 
                 jarray.put(jvalues);
-                jobject.put("Walk Data",jarray);
-                //try (FileWriter writer = new FileWriter(plik)) {
-                //    writer.write(jobject.toString());
-                //}
+                jobject.put("Walk Data", jarray);
 
+                osw.write(jobject.toString());
+                osw.flush();
+                fos.getFD().sync();
+                osw.close();
+            }else{
+                String newData = ",{\"WalkDate\":\"" + data.toString() + "\",\"WalkTime\":\"" + walkTime + "\",\"WalkDistance\":" + walkDistance + "}";
 
-            // Use RandomAccessFile to append new data without loading the whole file
-            //RandomAccessFile raf = new RandomAccessFile(plik, "rw");
-            //long fileLength = raf.length();
+                RandomAccessFile raf = new RandomAccessFile(plik, "rw");
+                long length = raf.length(); // Get the file length
+                long insertPosition = length - 2; // Position 2 characters from EOF
 
-            // Move the pointer to the end of the "walkData" array
-            //raf.seek(fileLength - 1); // Position before closing bracket
+                // Move to the insertion position
+                raf.seek(insertPosition);
 
-            // Add new data
-            //String newData = "{\"WalkDate\":\"" + walkDate + "\",\"WalkTime\":\"" + walkTime + "\",\"WalkDistance\":" + walkDistance + "}";
+                // Read the last 2 characters into a buffer
+                byte[] buffer = new byte[(int) (length - insertPosition)];
+                raf.read(buffer);
 
-           // if (fileLength > 20) { // If the array is not empty, add a comma
-            //    raf.writeBytes(",");
-           // }
+                // Move back to the insertion point and write the new data
+                raf.seek(insertPosition);
+                raf.write(newData.getBytes());
 
-            //raf.writeBytes(newData + "]}");
-            //raf.close();
+                // Write back the saved characters
+                raf.write(buffer);
 
-            /*
-            * obiekt:
-            * Walkdata{
-            *   array{
-            *       {Date,Distance,Time},
-            *       {Date,Distance,Time},
-            *       ...
-            *     }
-            * }
-            *
-            * */
+            }
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -124,20 +117,30 @@ public class DataStorage {
     }
 
     //save data about pet
-    public void savePetInfo(String name,int age,float weight,boolean overweight){
+    public void savePetInfo(String name,int age,float weight,File path){
 
         try{
-            File plik=new File(fileName);
+            //File path =DataStorage.getFilesDir();
+            File plik=new File(path,petDataFile);
 
-            if(!plik.exists()){
+
+            if(!plik.exists()) {
                 plik.createNewFile();
-            }
+            }                FileOutputStream fos = new FileOutputStream(plik);
+                OutputStreamWriter osw = new OutputStreamWriter(fos);
 
-            JSONObject jobject = new JSONObject();
-            jobject.put("Name",name);
-            jobject.put("age",age);
-            jobject.put("Weight",weight);
-            jobject.put("Overweight", overweight);
+                JSONObject jobject = new JSONObject();
+                jobject.put("Name",name);
+                jobject.put("age",age);
+                jobject.put("Weight",weight);
+
+                osw.write(jobject.toString());
+                osw.flush();
+                fos.getFD().sync();
+                osw.close();
+
+
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
