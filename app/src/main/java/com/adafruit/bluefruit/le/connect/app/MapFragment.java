@@ -33,6 +33,7 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
     private MapView mapView;
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
+    private boolean isFirstUpdate = true; // Flaga do ustawienia widoku tylko przy pierwszej lokalizacji
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -95,14 +96,19 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
 
     private void updateMapWithLocation(Location location) {
         GeoPoint userLocation = new GeoPoint(location.getLatitude(), location.getLongitude());
-        mapView.getController().setZoom(17.0); // Szczegółowy zoom
-        mapView.getController().setCenter(userLocation);
 
-        // Dodanie markera
+        // Ustawienie mapy na aktualną lokalizację tylko przy pierwszej aktualizacji
+        if (isFirstUpdate) {
+            mapView.getController().setZoom(17.0); // Szczegółowy zoom tylko na początku
+            mapView.getController().setCenter(userLocation);
+            isFirstUpdate = false;
+        }
+
+        // Dodanie lub aktualizacja markera
+        mapView.getOverlays().clear(); // Usuń stare markery
         Marker marker = new Marker(mapView);
         marker.setPosition(userLocation);
         marker.setTitle("Twoja lokalizacja");
-        mapView.getOverlays().clear(); // Usuń stare markery
         mapView.getOverlays().add(marker);
     }
 
