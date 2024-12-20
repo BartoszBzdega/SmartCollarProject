@@ -648,7 +648,8 @@ public abstract class UartBaseFragment extends ConnectedPeripheralFragment imple
     }
 
     private void reloadData() {
-        List<UartPacket> packetsCache = mUartData.getPacketsCache();
+        List<UartPacket> packetsCache = mUartData.getPacketsCache(); //TODO: odbior danych?
+        Log.d("pakiet", packetsCache.get(0).toString());
         final int packetsCacheSize = packetsCache.size();
         if (mPacketsCacheLastSize != packetsCacheSize) {        // Only if the buffer has changed
 
