@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,11 +17,14 @@ import com.adafruit.bluefruit.le.connect.R;
 import com.adafruit.bluefruit.le.connect.ble.central.UartDataManager;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class InformationPreview extends ConnectedPeripheralFragment implements UartDataManager.UartDataManagerListener {
 
     private Button buttonWalk;
     private Button buttonPetData;
+    private Button readWalk;
 
 
     @Override
@@ -80,6 +84,19 @@ public class InformationPreview extends ConnectedPeripheralFragment implements U
             File path = getActivity().getFilesDir();
 
             dts.savePetInfo(name,age,weight, path);
+
+        });
+
+        readWalk=(Button)getView().findViewById(R.id.buttonReadWalk);
+        readWalk.setOnClickListener(view1 -> {
+
+            DataStorage dts = new DataStorage();
+
+            ArrayList<HashMap<String, String>> formList = dts.readWalkData(getActivity().getFilesDir());
+
+            TextView placeholder = getView().findViewById(R.id.readWalkView);
+            String text =formList.get(1).toString();
+            placeholder.setText(text);
 
         });
     }
