@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,11 +17,14 @@ import com.adafruit.bluefruit.le.connect.R;
 import com.adafruit.bluefruit.le.connect.ble.central.UartDataManager;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class InformationPreview extends ConnectedPeripheralFragment implements UartDataManager.UartDataManagerListener {
 
     private Button buttonWalk;
     private Button buttonPetData;
+    private Button readWalk;
 
 
     @Override
@@ -82,6 +86,22 @@ public class InformationPreview extends ConnectedPeripheralFragment implements U
             dts.savePetInfo(name,age,weight, path);
 
         });
+
+        readWalk=(Button)getView().findViewById(R.id.buttonReadWalk);
+        readWalk.setOnClickListener(view1 -> {
+
+            DataStorage dts = new DataStorage();
+
+            ArrayList<HashMap<String, String>> formList = dts.readWalkData(getActivity().getFilesDir());
+
+            TextView placeholder = getView().findViewById(R.id.readWalkView);
+
+            String text =formList.get(1).toString();
+            String data = getDate(text);
+            Log.d("I",text);
+            placeholder.setText(data);
+
+        });
     }
 
     public static InformationPreview newInstance(@Nullable String singlePeripheralIdentifier) {
@@ -90,7 +110,20 @@ public class InformationPreview extends ConnectedPeripheralFragment implements U
         return fragment;
     }
 
+    public String getDate(String d)
+    {
+        String date=new String();
+        String []splitDate = d.split(" ");
+        String []datDay = splitDate[1].split("=");
+        date = datDay[1]+" "+splitDate[2]+" "+splitDate[3]+" "+splitDate[6];
+        return date;
+    }
 
+    public String getTime(String t)
+    {
+        String time=new String();
+        return time;
+    }
 
     //TODO: 2 wykresy dodac zeby widoczne byly
     //1) wykres dni od czasu spaceru (wykres liniowy)

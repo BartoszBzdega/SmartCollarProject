@@ -60,6 +60,10 @@ dependencies {
     implementation 'androidx.percentlayout:percentlayout:1.0.0'
     implementation 'androidx.cardview:cardview:1.0.0'
 
+    //Charting
+    implementation group: 'org.jfree', name: 'jfreechart', version: '1.5.0'
+
+
     // Google Play Services
     implementation 'com.google.android.gms:play-services-base:18.2.0'
     implementation 'com.google.android.gms:play-services-location:21.0.1'

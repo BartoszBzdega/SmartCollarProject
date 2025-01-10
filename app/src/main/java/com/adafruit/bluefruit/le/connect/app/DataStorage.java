@@ -7,14 +7,22 @@ import androidx.core.content.ContextCompat;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.File;  // Import the File class
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;  // Import the IOException class to handle errors
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 
 public class DataStorage {
 
@@ -65,6 +73,9 @@ public class DataStorage {
             //File path =DataStorage.getFilesDir();
             File plik=new File(path,fileName);
 
+            //godzine w plecy jest
+            //format :   Sun Dec 22 10:51:07 GMT 2024
+            //rozdzielić go spacjami i pokolei czytac
             Date data = Calendar.getInstance().getTime();
             Log.d("Data:", data.toString());
 
@@ -76,9 +87,9 @@ public class DataStorage {
                 JSONObject jobject = new JSONObject();
                 JSONArray jarray = new JSONArray();
                 JSONObject jvalues = new JSONObject();
-                jvalues.put("Date", data);
-                jvalues.put("Distance", walkDistance);
-                jvalues.put("Time", walkTime);
+                jvalues.put("WalkDate", data);
+                jvalues.put("WalkDistance", walkDistance);
+                jvalues.put("WalkTime", walkTime);
 
                 jarray.put(jvalues);
                 jobject.put("Walk Data", jarray);
@@ -120,7 +131,6 @@ public class DataStorage {
     public void savePetInfo(String name,int age,float weight,File path){
 
         try{
-            //File path =DataStorage.getFilesDir();
             File plik=new File(path,petDataFile);
 
 
@@ -146,9 +156,100 @@ public class DataStorage {
         }
     }
 
-    public void readWalkData(){}
+    public String loadJSONFromAsset(File file) {
+        String json = null;
+        try {
+            FileInputStream fis = new FileInputStream(file);
 
-    public void readPetInfo(){}
+            int size = fis.available();
+            byte[] buffer = new byte[size];
+            fis.read(buffer);
+            fis.close();
+            json = new String(buffer, "UTF-8");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+        return json;
+    }
+
+    public ArrayList readPetInfo(File path){
+        File plik =new File(path,petDataFile);
+        ArrayList<HashMap<String, String>> formList = new ArrayList<>();
+       try{
+       if(plik.exists())
+       {
+               String json;
+
+               JSONObject obj = new JSONObject(loadJSONFromAsset(plik));
+               //pusta nazwa obiektu, wyzej tez nie jest podana, mozliwe ze wywali
+               JSONArray jArry = obj.getJSONArray("");
+               formList = new ArrayList<HashMap<String, String>>();
+               HashMap<String, String> m_li;
+
+               for (int i = 0; i < jArry.length(); i++) {
+                   //TODO: dodać odczytywanie wszystkich danych, i odczytywanie petdatainfo
+                   JSONObject jo_inside = jArry.getJSONObject(i);
+                   //reading particular fields from json
+                   String nameValue = jo_inside.getString("Name");
+                   String ageValue = jo_inside.getString("age");
+                   String weightValue = jo_inside.getString("Weight");
+
+                   //Add your values in your `ArrayList` as below:
+                   m_li = new HashMap<String, String>();
+                   m_li.put("Name", nameValue);
+                   m_li.put("Age",ageValue);
+                   m_li.put("Weight",weightValue);
+
+                   formList.add(m_li);
+
+               }
+       return formList;
+       }
+       } catch (Exception e) {
+           throw new RuntimeException(e);
+       }
+    return formList;
+    }
+
+    public ArrayList readWalkData(File path){
+        File plik =new File(path,fileName);
+        ArrayList<HashMap<String, String>> formList = new ArrayList<>();
+        try{
+            if(plik.exists())
+            {
+                String json;
+
+                JSONObject obj = new JSONObject(loadJSONFromAsset(plik));
+                JSONArray jArry = obj.getJSONArray("Walk Data");
+                formList = new ArrayList<HashMap<String, String>>();
+                HashMap<String, String> m_li;
+
+                for (int i = 0; i < jArry.length(); i++) {
+                    //TODO: dodać odczytywanie wszystkich danych, i odczytywanie petdatainfo
+                    JSONObject jo_inside = jArry.getJSONObject(i);
+                    Log.d("Details-->", jo_inside.getString("WalkDate"));
+                    String dateValue = jo_inside.getString("WalkDate");
+                    String distanceValue = jo_inside.getString("WalkDistance");
+                    String timeValue = jo_inside.getString("WalkTime");
+
+                    //Add your values in your `ArrayList` as below:
+                    m_li = new HashMap<String, String>();
+                    m_li.put("Date", dateValue);
+                    m_li.put("Distance",distanceValue);
+                    m_li.put("Time",timeValue);
+
+                    formList.add(m_li);
+
+                }
+                return formList;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return formList;
+
+    }
 }
 //TODO - stream do zapisu
 //TODO - przetetowac na zapisywaniu danych danych psa (formularz cymka)
