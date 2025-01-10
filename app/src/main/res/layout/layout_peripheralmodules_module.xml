@@ -8,27 +8,28 @@
     android:baselineAligned="false"
     android:gravity="center_vertical"
     android:minHeight="50dp"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     tools:visibility="visible">
 
+    <ImageView
+        android:id="@+id/iconImageView"
+        android:layout_width="143dp"
+        android:layout_height="115dp"
+        android:src="@drawable/tab_info_icon"
+        android:tint="@color/grey_800" />
+
     <TextView
         android:id="@+id/nameTextView"
-        android:layout_width="163dp"
-        android:layout_height="35dp"
+        android:layout_width="257dp"
+        android:layout_height="60dp"
         android:layout_marginStart="12dp"
         android:layout_weight="1"
+        android:gravity="right"
         android:text="@string/info_tab_title"
         android:textAlignment="center"
         android:textColor="@color/black" />
-
-    <ImageView
-        android:id="@+id/iconImageView"
-        android:layout_width="219dp"
-        android:layout_height="169dp"
-        android:src="@drawable/tab_info_icon"
-        android:tint="@color/grey_800" />
 
 </LinearLayout>
 
