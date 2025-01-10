@@ -61,6 +61,7 @@ public class PeripheralModulesFragment extends ConnectedPeripheralFragment {
     private final static int MODULE_DFU = 10;
     private final static int MODULE_MAP = 11;
     private final static int MODULE_INFORMATION_PREVIEW = 12;
+    private final static int MODULE_CHART = 13;
 
     // Data
     private PeripheralModulesFragmentListener mListener;
@@ -279,6 +280,9 @@ public class PeripheralModulesFragment extends ConnectedPeripheralFragment {
 
             case MODULE_INFORMATION_PREVIEW:
                 fragment = InformationPreview.newInstance(singlePeripheralIdentifier);
+                break;
+            case MODULE_CHART:
+                fragment = ChartingFragment.newInstance(singlePeripheralIdentifier);
                 break;
         }
 
