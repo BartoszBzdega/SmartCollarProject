@@ -88,8 +88,9 @@ public class DataStorage {
                 JSONArray jarray = new JSONArray();
                 JSONObject jvalues = new JSONObject();
                 jvalues.put("WalkDate", data);
-                jvalues.put("WalkDistance", walkDistance);
                 jvalues.put("WalkTime", walkTime);
+                jvalues.put("WalkDistance", walkDistance);
+
 
                 jarray.put(jvalues);
                 jobject.put("Walk Data", jarray);

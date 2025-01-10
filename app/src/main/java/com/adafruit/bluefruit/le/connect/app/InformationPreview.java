@@ -96,8 +96,9 @@ public class InformationPreview extends ConnectedPeripheralFragment implements U
 
             TextView placeholder = getView().findViewById(R.id.readWalkView);
 
-            String text =formList.get(1).toString();
-            String data = getDate(text);
+            String text =formList.get(2).toString();
+            String data = getTime(text);
+            String distance = getDistance(text);
             Log.d("I",text);
             placeholder.setText(data);
 
@@ -121,9 +122,22 @@ public class InformationPreview extends ConnectedPeripheralFragment implements U
 
     public String getTime(String t)
     {
-        String time=new String();
+        String []readT = t.split(",");
+        String []readT2 = readT[0].split("=");
+        String time=readT2[1];
+
         return time;
     }
+
+    public String getDistance(String t)
+    {
+        String []readT = t.split(",");
+        String []readT2 = readT[2].split("=");
+        String time=readT2[1].substring(0, readT2[1].length()-1);
+
+        return time;
+    }
+
 
     //TODO: 2 wykresy dodac zeby widoczne byly
     //1) wykres dni od czasu spaceru (wykres liniowy)
