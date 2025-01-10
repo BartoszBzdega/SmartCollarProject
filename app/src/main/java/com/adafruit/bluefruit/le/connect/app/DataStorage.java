@@ -73,6 +73,9 @@ public class DataStorage {
             //File path =DataStorage.getFilesDir();
             File plik=new File(path,fileName);
 
+            //godzine w plecy jest
+            //format :   Sun Dec 22 10:51:07 GMT 2024
+            //rozdzielić go spacjami i pokolei czytac
             Date data = Calendar.getInstance().getTime();
             Log.d("Data:", data.toString());
 
@@ -128,7 +131,6 @@ public class DataStorage {
     public void savePetInfo(String name,int age,float weight,File path){
 
         try{
-            //File path =DataStorage.getFilesDir();
             File plik=new File(path,petDataFile);
 
 
@@ -171,8 +173,8 @@ public class DataStorage {
         return json;
     }
 
-    public ArrayList readWalkData(File path){
-        File plik =new File(path,fileName);
+    public ArrayList readPetInfo(File path){
+        File plik =new File(path,petDataFile);
         ArrayList<HashMap<String, String>> formList = new ArrayList<>();
        try{
        if(plik.exists())
@@ -180,20 +182,24 @@ public class DataStorage {
                String json;
 
                JSONObject obj = new JSONObject(loadJSONFromAsset(plik));
-               JSONArray jArry = obj.getJSONArray("Walk Data");
+               //pusta nazwa obiektu, wyzej tez nie jest podana, mozliwe ze wywali
+               JSONArray jArry = obj.getJSONArray("");
                formList = new ArrayList<HashMap<String, String>>();
                HashMap<String, String> m_li;
 
                for (int i = 0; i < jArry.length(); i++) {
+                   //TODO: dodać odczytywanie wszystkich danych, i odczytywanie petdatainfo
                    JSONObject jo_inside = jArry.getJSONObject(i);
-                   Log.d("Details-->", jo_inside.getString("WalkDate"));
-                   String formula_value = jo_inside.getString("WalkDate");
-                   //String url_value = jo_inside.getString("Time");
+                   //reading particular fields from json
+                   String nameValue = jo_inside.getString("Name");
+                   String ageValue = jo_inside.getString("age");
+                   String weightValue = jo_inside.getString("Weight");
 
                    //Add your values in your `ArrayList` as below:
                    m_li = new HashMap<String, String>();
-                   m_li.put("Date", formula_value);
-                   //m_li.put("url", url_value);
+                   m_li.put("Name", nameValue);
+                   m_li.put("Age",ageValue);
+                   m_li.put("Weight",weightValue);
 
                    formList.add(m_li);
 
@@ -206,7 +212,44 @@ public class DataStorage {
     return formList;
     }
 
-    public void readPetInfo(){}
+    public ArrayList readWalkData(File path){
+        File plik =new File(path,fileName);
+        ArrayList<HashMap<String, String>> formList = new ArrayList<>();
+        try{
+            if(plik.exists())
+            {
+                String json;
+
+                JSONObject obj = new JSONObject(loadJSONFromAsset(plik));
+                JSONArray jArry = obj.getJSONArray("Walk Data");
+                formList = new ArrayList<HashMap<String, String>>();
+                HashMap<String, String> m_li;
+
+                for (int i = 0; i < jArry.length(); i++) {
+                    //TODO: dodać odczytywanie wszystkich danych, i odczytywanie petdatainfo
+                    JSONObject jo_inside = jArry.getJSONObject(i);
+                    Log.d("Details-->", jo_inside.getString("WalkDate"));
+                    String dateValue = jo_inside.getString("WalkDate");
+                    String distanceValue = jo_inside.getString("WalkDistance");
+                    String timeValue = jo_inside.getString("WalkTime");
+
+                    //Add your values in your `ArrayList` as below:
+                    m_li = new HashMap<String, String>();
+                    m_li.put("Date", dateValue);
+                    m_li.put("Distance",distanceValue);
+                    m_li.put("Time",timeValue);
+
+                    formList.add(m_li);
+
+                }
+                return formList;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return formList;
+
+    }
 }
 //TODO - stream do zapisu
 //TODO - przetetowac na zapisywaniu danych danych psa (formularz cymka)

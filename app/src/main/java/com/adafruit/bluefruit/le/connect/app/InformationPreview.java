@@ -95,8 +95,11 @@ public class InformationPreview extends ConnectedPeripheralFragment implements U
             ArrayList<HashMap<String, String>> formList = dts.readWalkData(getActivity().getFilesDir());
 
             TextView placeholder = getView().findViewById(R.id.readWalkView);
+
             String text =formList.get(1).toString();
-            placeholder.setText(text);
+            String data = getDate(text);
+            Log.d("I",text);
+            placeholder.setText(data);
 
         });
     }
@@ -107,7 +110,20 @@ public class InformationPreview extends ConnectedPeripheralFragment implements U
         return fragment;
     }
 
+    public String getDate(String d)
+    {
+        String date=new String();
+        String []splitDate = d.split(" ");
+        String []datDay = splitDate[1].split("=");
+        date = datDay[1]+" "+splitDate[2]+" "+splitDate[3]+" "+splitDate[6];
+        return date;
+    }
 
+    public String getTime(String t)
+    {
+        String time=new String();
+        return time;
+    }
 
     //TODO: 2 wykresy dodac zeby widoczne byly
     //1) wykres dni od czasu spaceru (wykres liniowy)
