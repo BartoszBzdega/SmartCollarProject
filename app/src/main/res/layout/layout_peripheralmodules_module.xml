@@ -16,14 +16,14 @@
     <ImageView
         android:id="@+id/iconImageView"
         android:layout_width="143dp"
-        android:layout_height="115dp"
+        android:layout_height="match_parent"
         android:src="@drawable/tab_info_icon"
         android:tint="@color/grey_800" />
 
     <TextView
         android:id="@+id/nameTextView"
         android:layout_width="257dp"
-        android:layout_height="60dp"
+        android:layout_height="32dp"
         android:layout_marginStart="12dp"
         android:layout_weight="1"
         android:gravity="right"

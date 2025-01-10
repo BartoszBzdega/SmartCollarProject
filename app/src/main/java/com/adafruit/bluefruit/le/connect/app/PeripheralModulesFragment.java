@@ -476,7 +476,7 @@ public class PeripheralModulesFragment extends ConnectedPeripheralFragment {
                             break;
 
                         case MODULE_MAP:
-                            iconDrawableId = R.drawable.tab_dfu_icon; // TODO: ZMIENIC IKONE
+                            iconDrawableId = R.drawable.map_icon;
                             titleId = R.string.map_tab_title;
                             break;
 
