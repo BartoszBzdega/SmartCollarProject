@@ -11,12 +11,12 @@ uint32_t timer = millis();
 float gpspacket[5];
 char lon[20];
 char lat[20];
-char minuteStr[3];
+char minute[3];
 char hr[3];
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("Obroża");
+  Serial.println("SmartObroza");
 
   GPS.begin(9600);
   GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
@@ -47,7 +47,7 @@ void loop() {
 
     sprintf(lat, "%.6f", gpspacket[0]);
     sprintf(lon, "%.6f", gpspacket[1]);
-    sprintf(minuteStr, "%02d", (int)gpspacket[2]);
+    sprintf(minute, "%02d", (int)gpspacket[2]);
     sprintf(hr, "%02d", (int)gpspacket[3]);
 
     Serial.println("##########");
@@ -56,7 +56,7 @@ void loop() {
     Serial.println("Longitude:");
     Serial.println(lon);
     Serial.println("Minutes: ");
-    Serial.println(minuteStr);
+    Serial.println(minute);
     Serial.println("Hours: ");
     Serial.println(hr);
 
