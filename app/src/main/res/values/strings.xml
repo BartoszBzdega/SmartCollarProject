@@ -573,7 +573,8 @@
 
 	<string name="common_help_action">Help</string>
 
-
+	<!-- Charts -->
+	<string name="Charts">Charts</string>
 
 	<!-- About -->
 	<string name="about_title">About</string>

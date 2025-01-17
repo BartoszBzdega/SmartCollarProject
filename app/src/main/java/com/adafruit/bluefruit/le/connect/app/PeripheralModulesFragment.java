@@ -488,6 +488,11 @@ public class PeripheralModulesFragment extends ConnectedPeripheralFragment {
                             iconDrawableId = R.drawable.tab_dfu_icon; // TODO: ZMIENIC IKONE
                             titleId = R.string.informationPreview;
                             break;
+                        case MODULE_CHART:
+                            iconDrawableId = R.drawable.tab_dfu_icon; // TODO: ZMIENIC IKONE
+                            titleId = R.string.Charts;
+                            break;
+
                     }
 
                     ModuleViewHolder moduleViewHolder = (ModuleViewHolder) holder;
@@ -521,7 +526,7 @@ public class PeripheralModulesFragment extends ConnectedPeripheralFragment {
 
         private int[] getMenuItems() {
             if (mConnectionMode == CONNECTIONMODE_MULTIPLEPERIPHERAL) {
-                return new int[]{MODULE_UART, MODULE_PLOTTER, MODULE_MAP, MODULE_INFORMATION_PREVIEW};
+                return new int[]{MODULE_UART, MODULE_PLOTTER, MODULE_MAP, MODULE_INFORMATION_PREVIEW, MODULE_CHART};
             } else if (mBlePeripheral == null) {
                 return new int[]{};
             } else {
