@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+
 public class InformationPreview extends ConnectedPeripheralFragment implements UartDataManager.UartDataManagerListener {
 
     private Button buttonWalk;
@@ -138,6 +139,11 @@ public class InformationPreview extends ConnectedPeripheralFragment implements U
         return time;
     }
 
+    public void  ch()
+    {
+
+
+    }
 
     //TODO: 2 wykresy dodac zeby widoczne byly
     //1) wykres dni od czasu spaceru (wykres liniowy)
