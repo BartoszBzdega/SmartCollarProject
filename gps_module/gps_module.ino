@@ -1,84 +1,72 @@
 #include <Adafruit_GPS.h>
 #include <Wire.h>
-// Define the hardware serial port for GPS communication
-#define GPSSerial Serial1
 
-// Connect to the GPS on the hardware port
+#define GPSSerial Serial1
 Adafruit_GPS GPS(&GPSSerial);
 
-// Set GPSECHO to 'false' to disable raw GPS data echo for debugging
 #define GPSECHO false
-
 #define slaveAddress 8
 
 uint32_t timer = millis();
-float gpspacket[2];
-char lon[20]; // For formatted longitude
-char lat[20]; // For formatted latitude
+float gpspacket[5];
+char lon[20];
+char lat[20];
+char minuteStr[3];
+char hr[3];
 
-byte dataArray[2] = {0x12, 0x34};
 void setup() {
-  // Initialize serial for debugging
   Serial.begin(115200);
-  Serial.println("Adafruit GPS library basic parsing test!");
+  Serial.println("Obroża");
 
-  // Initialize GPS at 9600 baud (default for Adafruit MTK GPS)
   GPS.begin(9600);
-
-  // Configure GPS output and update rate
-  GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA); // RMC and GGA sentences
-  GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);    // 1 Hz update rate
-  GPS.sendCommand(PGCMD_ANTENNA);               // Request antenna status
+  GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
+  GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);
+  GPS.sendCommand(PGCMD_ANTENNA);
 
   delay(1000);
-  GPSSerial.println(PMTK_Q_RELEASE); // Request firmware version
+  GPSSerial.println(PMTK_Q_RELEASE);
 
- 
-
-
-
+  Wire.begin(); // Inicjalizacja I2C
 }
 
 void loop() {
   char c = GPS.read();
   if (GPSECHO && c) Serial.print(c);
 
-  // Check for and parse new NMEA sentences
   if (GPS.newNMEAreceived()) {
     if (!GPS.parse(GPS.lastNMEA())) return;
   }
 
-  // Print GPS data every 5 seconds
   if (millis() - timer > 5000) {
     timer = millis();
 
-    //if (GPS.fix) {
-      //gpspacket[0] = GPS.latitude;
-      //gpspacket[1] = GPS.longitude;
-      dataArray[0] = GPS.latitude;
-      dataArray[1] = GPS.longitude;
+    gpspacket[0] = GPS.latitudeDegrees;
+    gpspacket[1] = GPS.longitudeDegrees;
+    gpspacket[2] = GPS.minute;
+    gpspacket[3] = GPS.hour;
 
-      dtostrf(gpspacket[0], 1, 14, lat);
-      dtostrf(gpspacket[1], 1, 14, lon);
+    sprintf(lat, "%.6f", gpspacket[0]);
+    sprintf(lon, "%.6f", gpspacket[1]);
+    sprintf(minuteStr, "%02d", (int)gpspacket[2]);
+    sprintf(hr, "%02d", (int)gpspacket[3]);
 
-      Serial.println("##########");
-      Serial.println("Latitude:");
-      Serial.println(lat);
-      Serial.println("Longitude:");
-      Serial.println(lon);
-    //} else {
-      Serial.println("Waiting for GPS fix...");
+    Serial.println("##########");
+    Serial.println("Latitude:");
+    Serial.println(lat);
+    Serial.println("Longitude:");
+    Serial.println(lon);
+    Serial.println("Minutes: ");
+    Serial.println(minuteStr);
+    Serial.println("Hours: ");
+    Serial.println(hr);
 
-    Wire.begin();
-    Wire.beginTransmission(slaveAddress); //address is queued for checking if the slave is present
-    for (int i=0; i<2; i++)
-    {
-      Wire.write(dataArray[i]);  //data bytes are queued in local buffer
 
+    Wire.beginTransmission(slaveAddress);
+    for (int i = 0; i < 4; i++) { 
+      Wire.write((byte*)&gpspacket[i], sizeof(gpspacket[i])); // float
     }
-    Wire.endTransmission(); //all the above queued bytes are sent to slave on ACK handshaking
+    Wire.endTransmission();
+
     delay(1000);
-    }
   }
-//}
-
+}
