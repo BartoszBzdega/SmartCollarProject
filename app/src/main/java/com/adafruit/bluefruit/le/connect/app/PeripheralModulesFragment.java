@@ -282,7 +282,7 @@ public class PeripheralModulesFragment extends ConnectedPeripheralFragment {
                 fragment = InformationPreview.newInstance(singlePeripheralIdentifier);
                 break;
             case MODULE_CHART:
-                fragment = ChartingFragment.newInstance(singlePeripheralIdentifier);
+                fragment = InformationChart.newInstance(singlePeripheralIdentifier);
                 break;
         }
 
