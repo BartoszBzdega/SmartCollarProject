@@ -2,6 +2,10 @@ package com.adafruit.bluefruit.le.connect.app;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -44,7 +48,10 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
     private Handler timerHandler = new Handler();
     private long startTime = 0;
     private GeoPoint lastKnownLocation;
-    private boolean isFirstLocationUpdate = true; // Flaga do centrowania tylko przy pierwszej aktualizacji
+
+    private Marker locationMarker; // Marker dla lokalizacji użytkownika
+    private Marker startMarker;    // Marker dla miejsca rozpoczęcia stopera
+    private Marker stopMarker;     // Marker dla miejsca zakończenia stopera
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,9 +59,6 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
 
         // Konfiguracja Osmdroid
         Configuration.getInstance().setUserAgentValue(requireContext().getPackageName());
-        Configuration.getInstance().setTileFileSystemCacheMaxBytes(50L * 1024 * 1024); // Pamięć podręczna
-        Configuration.getInstance().setCacheMapTileCount((short) 9); // Mniejsza liczba kafelków
-        Configuration.getInstance().setCacheMapTileOvershoot((short) 2); // Mniejsze kafelki poza ekranem
     }
 
     @Override
@@ -70,7 +74,6 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
         mapView = view.findViewById(R.id.map_view);
         mapView.setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK);
         mapView.setMultiTouchControls(true);
-        mapView.getController().setZoom(12.0); // Mniejszy zoom na starcie
 
         // Przyciski
         btnTimer = view.findViewById(R.id.btn_timer);
@@ -85,7 +88,7 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
             }
         });
 
-        // Obsługa przycisku Start/Stop
+        // Obsługa przycisku Start/Stop/Wyczyść
         btnTimer.setOnClickListener(v -> toggleTimer());
 
         // Inicjalizacja klienta lokalizacji
@@ -101,16 +104,75 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
     }
 
     private void toggleTimer() {
-        if (isRunning) {
-            isRunning = false;
-            btnTimer.setText("Start");
-            timerHandler.removeCallbacks(updateTimerRunnable);
-        } else {
+        if (!isRunning && btnTimer.getText().equals("Start")) {
+            // Uruchom stoper
             isRunning = true;
             btnTimer.setText("Stop");
             startTime = SystemClock.elapsedRealtime();
             timerHandler.post(updateTimerRunnable);
+
+            // Usuń stare markery
+            if (startMarker != null) {
+                mapView.getOverlays().remove(startMarker);
+            }
+            if (stopMarker != null) {
+                mapView.getOverlays().remove(stopMarker);
+            }
+
+            // Dodaj marker początkowy w bieżącej lokalizacji
+            if (lastKnownLocation != null) {
+                startMarker = new Marker(mapView);
+                startMarker.setPosition(lastKnownLocation);
+                startMarker.setTitle("Początek trasy");
+                startMarker.setIcon(scaleMarkerIcon(R.drawable.ic_start_marker, 0.08f));
+                startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+                mapView.getOverlays().add(startMarker);
+            }
+        } else if (isRunning && btnTimer.getText().equals("Stop")) {
+            // Zatrzymaj stoper
+            isRunning = false;
+            btnTimer.setText("Wyczyść");
+            timerHandler.removeCallbacks(updateTimerRunnable);
+
+            // Dodaj marker końcowy w bieżącej lokalizacji
+            if (lastKnownLocation != null) {
+                if (stopMarker != null) {
+                    mapView.getOverlays().remove(stopMarker); // Usuń poprzedni marker, jeśli istnieje
+                }
+                stopMarker = new Marker(mapView);
+                stopMarker.setPosition(lastKnownLocation);
+                stopMarker.setTitle("Koniec trasy");
+                stopMarker.setIcon(scaleMarkerIcon(R.drawable.ic_stop_marker, 0.08f)); // Skala
+                stopMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+                mapView.getOverlays().add(stopMarker);
+            }
+        } else if (!isRunning && btnTimer.getText().equals("Wyczyść")) {
+            // Wyczyść stoper
+            btnTimer.setText("Start");
+            tvTimer.setText("00:00:00");
+
+            // Usuń markery "start" i "stop"
+            if (startMarker != null) {
+                mapView.getOverlays().remove(startMarker);
+                startMarker = null;
+            }
+            if (stopMarker != null) {
+                mapView.getOverlays().remove(stopMarker);
+                stopMarker = null;
+            }
+
+            mapView.invalidate(); // Odśwież mapę
         }
+    }
+
+    private Drawable scaleMarkerIcon(int drawableId, float scale) {
+        // Załaduj ikonę jako bitmapę
+        Bitmap bitmap = BitmapFactory.decodeResource(requireContext().getResources(), drawableId);
+        int width = (int) (bitmap.getWidth() * scale);
+        int height = (int) (bitmap.getHeight() * scale);
+        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
+
+        return new BitmapDrawable(requireContext().getResources(), scaledBitmap);
     }
 
     private final Runnable updateTimerRunnable = new Runnable() {
@@ -138,14 +200,7 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
                 if (locationResult.getLastLocation() != null) {
-                    // Aktualizuj mapę z nową lokalizacją
                     updateMapWithLocation(locationResult.getLastLocation());
-
-                    // Wykonaj centrowanie tylko przy pierwszej lokalizacji
-                    if (isFirstLocationUpdate) {
-                        centerMap(locationResult.getLastLocation());
-                        isFirstLocationUpdate = false; // Ustaw flagę, aby zapobiec kolejnym centrowaniom
-                    }
                 }
             }
         };
@@ -155,26 +210,21 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
         }
     }
 
-    private void centerMap(Location location) {
-        if (location != null) {
-            lastKnownLocation = new GeoPoint(location.getLatitude(), location.getLongitude());
-            mapView.getController().setCenter(lastKnownLocation);
-            mapView.getController().setZoom(17.0);
-        }
-    }
-
     private void updateMapWithLocation(Location location) {
         if (location == null) {
             return; // Zabezpieczenie przed null
         }
         lastKnownLocation = new GeoPoint(location.getLatitude(), location.getLongitude());
 
-        // Dodanie markera
-        mapView.getOverlays().clear();
-        Marker marker = new Marker(mapView);
-        marker.setPosition(lastKnownLocation);
-        marker.setTitle("Twoja lokalizacja");
-        mapView.getOverlays().add(marker);
+        // Aktualizuj marker bieżącej lokalizacji
+        if (locationMarker == null) {
+            locationMarker = new Marker(mapView);
+            locationMarker.setTitle("Twoja lokalizacja");
+            mapView.getOverlays().add(locationMarker);
+        }
+
+        locationMarker.setPosition(lastKnownLocation); // Aktualizuj pozycję
+        mapView.invalidate(); // Odśwież mapę
     }
 
     @Override
