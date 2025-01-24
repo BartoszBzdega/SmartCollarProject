@@ -4,40 +4,36 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- BarChart to display the bar chart -->
-    <com.github.mikephil.charting.charts.BarChart
-        android:id="@+id/chart"
-        android:layout_width="match_parent"
-        android:layout_height="250dp"/>
-
-    <!-- SeekBar for X axis control -->
-    <SeekBar
-        android:id="@+id/seekBarX"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-
-    <!-- SeekBar for Y axis control -->
-    <SeekBar
-        android:id="@+id/seekBarY"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
 
     <!-- TextView for displaying X axis value -->
     <TextView
         android:id="@+id/tvX"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="X Value"
+        android:text="Distance Chart"
         android:textSize="16sp"
         android:layout_marginTop="16dp"/>
+
+    <!-- BarChart to display the bar chart -->
+    <com.github.mikephil.charting.charts.BarChart
+        android:id="@+id/chart"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"/>
+
 
     <!-- TextView for displaying Y axis value -->
     <TextView
         android:id="@+id/tvY"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Y Value"
+        android:text="Time Chart"
         android:textSize="16sp"
         android:layout_marginTop="8dp"/>
+
+    <!-- BarChart to display the bar chart -->
+    <com.github.mikephil.charting.charts.BarChart
+        android:id="@+id/chartTime"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"/>
 
 </LinearLayout>
