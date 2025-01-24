@@ -9,10 +9,7 @@ Adafruit_GPS GPS(&GPSSerial);
 
 uint32_t timer = millis();
 float gpspacket[5];
-char lon[20];
-char lat[20];
-char minute[3];
-char hr[3];
+char* gpstransdata[24];  
 
 void setup() {
   Serial.begin(115200);
@@ -26,7 +23,7 @@ void setup() {
   delay(1000);
   GPSSerial.println(PMTK_Q_RELEASE);
 
-  Wire.begin(); // Inicjalizacja I2C
+  Wire.begin(); // Initialize I2C
 }
 
 void loop() {
@@ -42,30 +39,30 @@ void loop() {
 
     gpspacket[0] = GPS.latitudeDegrees;
     gpspacket[1] = GPS.longitudeDegrees;
-    gpspacket[2] = GPS.minute;
-    gpspacket[3] = GPS.hour;
-
-    sprintf(lat, "%.6f", gpspacket[0]);
-    sprintf(lon, "%.6f", gpspacket[1]);
-    sprintf(minute, "%02d", (int)gpspacket[2]);
-    sprintf(hr, "%02d", (int)gpspacket[3]);
-
-    Serial.println("##########");
-    Serial.println("Latitude:");
-    Serial.println(lat);
-    Serial.println("Longitude:");
-    Serial.println(lon);
-    Serial.println("Minutes: ");
-    Serial.println(minute);
-    Serial.println("Hours: ");
-    Serial.println(hr);
+    gpspacket[2] = (float)GPS.hour;
+    gpspacket[3] = (float)GPS.minute;
 
 
-    Wire.beginTransmission(slaveAddress);
-    for (int i = 0; i < 4; i++) { 
-      Wire.write((byte*)&gpspacket[i], sizeof(gpspacket[i])); // float
+    char* formattedStr = (char*)malloc(50 * sizeof(char));
+    if (formattedStr) {
+      snprintf(formattedStr, 50, "%.6f/%.6f/%02d/%02d",
+               gpspacket[0], gpspacket[1], (int)gpspacket[2], (int)gpspacket[3]);
+
+
+      gpstransdata[0] = formattedStr;
+
+      Serial.println("##########");
+      Serial.println("GPS Data: ");
+      Serial.println(gpstransdata[0]);
+
+
+      Wire.beginTransmission(slaveAddress);
+      Wire.write(gpstransdata[0]);
+      Wire.endTransmission();
+
+
+      free(formattedStr);
     }
-    Wire.endTransmission();
 
     delay(1000);
   }
