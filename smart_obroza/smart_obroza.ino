@@ -7,6 +7,7 @@
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_LSM9DS0.h>
+#include "Adafruit_SI1145.h"
 
 #if SOFTWARE_SERIAL_AVAILABLE
   #include <SoftwareSerial.h>
@@ -27,105 +28,106 @@
 
 Adafruit_BluefruitLE_UART ble(BLUEFRUIT_HWSERIAL_NAME, BLUEFRUIT_UART_MODE_PIN);
 Adafruit_LSM9DS0 lsm = Adafruit_LSM9DS0(1000);
+Adafruit_SI1145 uv = Adafruit_SI1145();
 
-float GPSdataArray[2];
+String gpsArray[4];
+int x;
+String GPSdata;
 
 void error(const __FlashStringHelper* err) {
   Serial.println(err);
   while (1);
 }
 
-void displaySensorDetails(void) {
-  sensor_t accel, mag, gyro, temp;
-  lsm.getSensor(&accel, &mag, &gyro, &temp);
+// void displaySensorDetails(void) {
+//   sensor_t accel, mag, gyro, temp;
+//   lsm.getSensor(&accel, &mag, &gyro, &temp);
   
-  Serial.println(F("------------------------------------"));
-  Serial.print(F("Sensor:       ")); Serial.println(accel.name);
-  Serial.print(F("Driver Ver:   ")); Serial.println(accel.version);
-  Serial.print(F("Unique ID:    ")); Serial.println(accel.sensor_id);
-  Serial.print(F("Max Value:    ")); Serial.print(accel.max_value); Serial.println(F(" m/s^2"));
-  Serial.print(F("Min Value:    ")); Serial.print(accel.min_value); Serial.println(F(" m/s^2"));
-  Serial.print(F("Resolution:   ")); Serial.print(accel.resolution); Serial.println(F(" m/s^2"));  
-  Serial.println(F("------------------------------------"));
-  Serial.println(F(""));
+//   Serial.println(F("------------------------------------"));
+//   Serial.print(F("Sensor:       ")); Serial.println(accel.name);
+//   Serial.print(F("Driver Ver:   ")); Serial.println(accel.version);
+//   Serial.print(F("Unique ID:    ")); Serial.println(accel.sensor_id);
+//   Serial.print(F("Max Value:    ")); Serial.print(accel.max_value); Serial.println(F(" m/s^2"));
+//   Serial.print(F("Min Value:    ")); Serial.print(accel.min_value); Serial.println(F(" m/s^2"));
+//   Serial.print(F("Resolution:   ")); Serial.print(accel.resolution); Serial.println(F(" m/s^2"));  
+//   Serial.println(F("------------------------------------"));
+//   Serial.println(F(""));
 
-  Serial.println(F("------------------------------------"));
-  Serial.print(F("Sensor:       ")); Serial.println(mag.name);
-  Serial.print(F("Driver Ver:   ")); Serial.println(mag.version);
-  Serial.print(F("Unique ID:    ")); Serial.println(mag.sensor_id);
-  Serial.print(F("Max Value:    ")); Serial.print(mag.max_value); Serial.println(F(" uT"));
-  Serial.print(F("Min Value:    ")); Serial.print(mag.min_value); Serial.println(F(" uT"));
-  Serial.print(F("Resolution:   ")); Serial.print(mag.resolution); Serial.println(F(" uT"));  
-  Serial.println(F("------------------------------------"));
-  Serial.println(F(""));
+//   Serial.println(F("------------------------------------"));
+//   Serial.print(F("Sensor:       ")); Serial.println(mag.name);
+//   Serial.print(F("Driver Ver:   ")); Serial.println(mag.version);
+//   Serial.print(F("Unique ID:    ")); Serial.println(mag.sensor_id);
+//   Serial.print(F("Max Value:    ")); Serial.print(mag.max_value); Serial.println(F(" uT"));
+//   Serial.print(F("Min Value:    ")); Serial.print(mag.min_value); Serial.println(F(" uT"));
+//   Serial.print(F("Resolution:   ")); Serial.print(mag.resolution); Serial.println(F(" uT"));  
+//   Serial.println(F("------------------------------------"));
+//   Serial.println(F(""));
 
-  Serial.println(F("------------------------------------"));
-  Serial.print(F("Sensor:       ")); Serial.println(gyro.name);
-  Serial.print(F("Driver Ver:   ")); Serial.println(gyro.version);
-  Serial.print(F("Unique ID:    ")); Serial.println(gyro.sensor_id);
-  Serial.print(F("Max Value:    ")); Serial.print(gyro.max_value); Serial.println(F(" rad/s"));
-  Serial.print(F("Min Value:    ")); Serial.print(gyro.min_value); Serial.println(F(" rad/s"));
-  Serial.print(F("Resolution:   ")); Serial.print(gyro.resolution); Serial.println(F(" rad/s"));  
-  Serial.println(F("------------------------------------"));
-  Serial.println(F(""));
+//   Serial.println(F("------------------------------------"));
+//   Serial.print(F("Sensor:       ")); Serial.println(gyro.name);
+//   Serial.print(F("Driver Ver:   ")); Serial.println(gyro.version);
+//   Serial.print(F("Unique ID:    ")); Serial.println(gyro.sensor_id);
+//   Serial.print(F("Max Value:    ")); Serial.print(gyro.max_value); Serial.println(F(" rad/s"));
+//   Serial.print(F("Min Value:    ")); Serial.print(gyro.min_value); Serial.println(F(" rad/s"));
+//   Serial.print(F("Resolution:   ")); Serial.print(gyro.resolution); Serial.println(F(" rad/s"));  
+//   Serial.println(F("------------------------------------"));
+//   Serial.println(F(""));
 
-  Serial.println(F("------------------------------------"));
-  Serial.print(F("Sensor:       ")); Serial.println(temp.name);
-  Serial.print(F("Driver Ver:   ")); Serial.println(temp.version);
-  Serial.print(F("Unique ID:    ")); Serial.println(temp.sensor_id);
-  Serial.print(F("Max Value:    ")); Serial.print(temp.max_value); Serial.println(F(" C"));
-  Serial.print(F("Min Value:    ")); Serial.print(temp.min_value); Serial.println(F(" C"));
-  Serial.print(F("Resolution:   ")); Serial.print(temp.resolution); Serial.println(F(" C"));  
-  Serial.println(F("------------------------------------"));
-  Serial.println(F(""));
+//   Serial.println(F("------------------------------------"));
+//   Serial.print(F("Sensor:       ")); Serial.println(temp.name);
+//   Serial.print(F("Driver Ver:   ")); Serial.println(temp.version);
+//   Serial.print(F("Unique ID:    ")); Serial.println(temp.sensor_id);
+//   Serial.print(F("Max Value:    ")); Serial.print(temp.max_value); Serial.println(F(" C"));
+//   Serial.print(F("Min Value:    ")); Serial.print(temp.min_value); Serial.println(F(" C"));
+//   Serial.print(F("Resolution:   ")); Serial.print(temp.resolution); Serial.println(F(" C"));  
+//   Serial.println(F("------------------------------------"));
+//   Serial.println(F(""));
   
-  delay(500);
-}
+//   delay(500);
+// }
 
-void configureSensor(void) {
-  // 1.) Set the accelerometer range
-  lsm.setupAccel(lsm.LSM9DS0_ACCELRANGE_2G);
-  // lsm.setupAccel(lsm.LSM9DS0_ACCELRANGE_4G);
-  // lsm.setupAccel(lsm.LSM9DS0_ACCELRANGE_6G);
-  // lsm.setupAccel(lsm.LSM9DS0_ACCELRANGE_8G);
-  // lsm.setupAccel(lsm.LSM9DS0_ACCELRANGE_16G);
+// void configureSensor(void) {
+//   // 1.) Set the accelerometer range
+//   lsm.setupAccel(lsm.LSM9DS0_ACCELRANGE_2G);
+//   // lsm.setupAccel(lsm.LSM9DS0_ACCELRANGE_4G);
+//   // lsm.setupAccel(lsm.LSM9DS0_ACCELRANGE_6G);
+//   // lsm.setupAccel(lsm.LSM9DS0_ACCELRANGE_8G);
+//   // lsm.setupAccel(lsm.LSM9DS0_ACCELRANGE_16G);
   
-  // 2.) Set the magnetometer sensitivity
-  lsm.setupMag(lsm.LSM9DS0_MAGGAIN_2GAUSS);
-  // lsm.setupMag(lsm.LSM9DS0_MAGGAIN_4GAUSS);
-  // lsm.setupMag(lsm.LSM9DS0_MAGGAIN_8GAUSS);
-  // lsm.setupMag(lsm.LSM9DS0_MAGGAIN_12GAUSS);
+//   // 2.) Set the magnetometer sensitivity
+//   lsm.setupMag(lsm.LSM9DS0_MAGGAIN_2GAUSS);
+//   // lsm.setupMag(lsm.LSM9DS0_MAGGAIN_4GAUSS);
+//   // lsm.setupMag(lsm.LSM9DS0_MAGGAIN_8GAUSS);
+//   // lsm.setupMag(lsm.LSM9DS0_MAGGAIN_12GAUSS);
 
-  // 3.) Setup the gyroscope
-  lsm.setupGyro(lsm.LSM9DS0_GYROSCALE_245DPS);
-  // lsm.setupGyro(lsm.LSM9DS0_GYROSCALE_500DPS);
-  // lsm.setupGyro(lsm.LSM9DS0_GYROSCALE_2000DPS);
-}
+//   // 3.) Setup the gyroscope
+//   lsm.setupGyro(lsm.LSM9DS0_GYROSCALE_245DPS);
+//   // lsm.setupGyro(lsm.LSM9DS0_GYROSCALE_500DPS);
+//   // lsm.setupGyro(lsm.LSM9DS0_GYROSCALE_2000DPS);
+// }
 
 void setup() {
   while (!Serial);  // required for Flora & Micro
   delay(500);
 
-  Wire.begin(8);                // join I2C bus with address #8
-  Wire.onReceive(receiveEvent); // register event
-  
   Serial.begin(9600);
 
-  // ACCELEROMETER INITIALISATION
-  if(!lsm.begin()) {
-    Serial.print(F("Ooops, no LSM9DS0 detected ... Check your wiring or I2C ADDR!"));
-    while(1);
-  }
-  Serial.println(F("Found LSM9DS0 9DOF"));
+  Serial.println("OK!");
+  // // ACCELEROMETER INITIALISATION
+  // if(!lsm.begin()) {
+  //   Serial.print(F("Ooops, no LSM9DS0 detected ... Check your wiring or I2C ADDR!"));
+  //   while(1);
+  // }
+  // Serial.println(F("Found LSM9DS0 9DOF"));
   
-  /* Display some basic information on this sensor */
-  displaySensorDetails();
+  // /* Display some basic information on this sensor */
+  // displaySensorDetails();
   
-  /* Setup the sensor gain and integration time */
-  configureSensor();
+  // /* Setup the sensor gain and integration time */
+  // configureSensor();
   
-  /* We're ready to go! */
-  Serial.println("");
+  // /* We're ready to go! */
+  // Serial.println("");
 
   ////// BLUETOOTH INIT
   Serial.println(F("Adafruit Bluefruit Command Mode Example"));
@@ -162,33 +164,48 @@ void setup() {
 
   ble.verbose(false);  // debug info is a little annoying after this point!
 
-  /* Wait for connection */
-  while (!ble.isConnected()) {
-      delay(500);
-  }
+  // /* Wait for connection */
+  // while (!ble.isConnected()) {
+  //     delay(500);
+  // }
+  Wire.begin(8);                // join I2C bus with address #8
+  Wire.onReceive(receiveEvent); // register event
 }
-
+    String delimiter = "/";
 void loop() {
-  delay(1000);
-  // ble.println("GPSSIGNALMF"); // SEND DATA
-
-  // sensors_event_t accel, mag, gyro, temp;
-  // lsm.getEvent(&accel, &mag, &gyro, &temp);
-
-  // // Print out acceleration data
-  // Serial.print("X:"); Serial.print(accel.acceleration.x);
-  // ble.print(accel.acceleration.x);
-  // Serial.print("Y:"); Serial.print(accel.acceleration.y);
-  // ble.print(accel.acceleration.y);
-  // Serial.print("Z:"); Serial.print(accel.acceleration.z);
-  // ble.print(accel.acceleration.z);
-}
-
-void receiveEvent() {
-  for(int i = 0; i < 2; i++) {
-    GPSdataArray[i] = Wire.read();
-    Serial.println(GPSdataArray[i]);
+  for(int i = 0; i < 5; i++) {
+  while(Wire.available())
+  {
+    char receivedChar = Wire.read();
+    GPSdata += receivedChar;
   }
-    ble.println(GPSdataArray[0]);
-    ble.println(GPSdataArray[1]);
+  delay(1000);
+  }
+  Serial.println(GPSdata);
+    GPSdata = "";
+  //tu dać rozdzielanie za pomocą znaków specialnych
+  //po czym je wysłać przez ble
+}
+  // {
+  //     x = Wire.read();
+  //     Serial.println(x);
+  // }
+  // {
+  //   for(int i = 0; i < 6; i++) {
+  //    GPSdataArray[i] = Wire.read();
+  //   Serial.println(GPSdataArray[i]);
+  //  }
+    
+  // }
+  // ble.println(GPSdataArray[0]);
+  // ble.println(GPSdataArray[1]);
+//   }
+// }
+void receiveEvent() {
+//   for(int i = 0; i < 5; i++) {
+//     GPSdataArray[i] = Wire.read();
+//     Serial.println(GPSdataArray[i]);
+//   }
+//   // x = Wire.read();
+//   // Serial.println(x);
 }
