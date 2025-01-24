@@ -126,7 +126,7 @@ public class InformationPreview extends ConnectedPeripheralFragment implements U
         String []readT = t.split(",");
         String []readT2 = readT[0].split("=");
         String time=readT2[1];
-
+//aaaaa
         return time;
     }
 
