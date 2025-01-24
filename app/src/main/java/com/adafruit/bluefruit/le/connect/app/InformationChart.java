@@ -36,6 +36,10 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
     private BarChart chart;
     private BarChart chartTime;
 
+    private Button buttonWeek;
+    private Button buttonMonth;
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -109,6 +113,26 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
         setDataTime(5,100);
         chart.invalidate();  // Refresh the chart with new data
         chartTime.invalidate();
+
+        buttonWeek=(Button) getView().findViewById(R.id.buttonWeek);
+        buttonWeek.setOnClickListener(v->{
+
+            setData(8, 100);
+            setDataTime(8,100);
+            chart.invalidate();  // Refresh the chart with new data
+            chartTime.invalidate();
+        });
+
+        buttonMonth=(Button) getView().findViewById(R.id.buttonMonth);
+        buttonMonth.setOnClickListener(v->{
+
+            setData(32, 100);
+            setDataTime(32,100);
+            chart.invalidate();  // Refresh the chart with new data
+            chartTime.invalidate();
+        });
+
+
     }
 
     public static InformationChart newInstance(@Nullable String singlePeripheralIdentifier) {
@@ -255,5 +279,10 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
         String time=readT2[1];
 
         return time;
+    }
+
+    //ile bylo wpisow w pozadanym przedziale czasowym - np w zeszlym tygodniu bylo 15 spacerow, w zeszlym miesiacu wliczajac ten tydzien 17
+    public int numOfDaysToEntries(int dayCount){
+        return 0;
     }
 }
