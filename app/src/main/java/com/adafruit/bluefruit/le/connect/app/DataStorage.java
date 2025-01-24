@@ -33,8 +33,6 @@ public class DataStorage {
     private String fileName="walkData.json";
     private String petDataFile = "petData.json";
 
-    //czas jest w minutach
-    //dystans jest w metrach
     public DataStorage(){}
 
     public DataStorage(String walkDate, float walkDistance, float walkTime){
@@ -255,5 +253,6 @@ public class DataStorage {
     }
 }
 //TODO - stream do zapisu
+//TODO - przetetowac na zapisywaniu danych danych psa (formularz cymka)
 
 
