@@ -34,11 +34,8 @@ import java.util.HashMap;
 public class InformationChart extends ConnectedPeripheralFragment implements UartDataManager.UartDataManagerListener{
 
     private BarChart chart;
-    private BarChart chartTime;
-
-    private Button buttonWeek;
-    private Button buttonMonth;
-
+    private SeekBar seekBarX, seekBarY;
+    private TextView tvX, tvY;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -68,6 +65,12 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
 
         // Initialize the views using findViewById
         chart = view.findViewById(R.id.chart); // Make sure your layout has a BarChart with this ID
+        seekBarX = view.findViewById(R.id.seekBarX); // SeekBar for controlling X axis
+        seekBarY = view.findViewById(R.id.seekBarY); // SeekBar for controlling Y axis
+        tvX = view.findViewById(R.id.tvX); // TextView for displaying X axis value
+        tvY = view.findViewById(R.id.tvY); // TextView for displaying Y axis value
+
+
         chart.setDrawBarShadow(false);
         chart.setDrawValueAboveBar(true);
         chart.getDescription().setEnabled(false);
@@ -87,51 +90,8 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
         l.setTextSize(11f);
         l.setXEntrySpace(4f);
 
-        //TimeChart
-        // Initialize the views using findViewById
-        chartTime = view.findViewById(R.id.chartTime); // Make sure your layout has a BarChart with this ID
-        chartTime.setDrawBarShadow(false);
-        chartTime.setDrawValueAboveBar(true);
-        chartTime.getDescription().setEnabled(false);
-        // if more than 60 entries are displayed in the chart, no values will be drawn
-        chartTime.setMaxVisibleValueCount(60);
-        // scaling can now only be done on x- and y-axis separately
-        chartTime.setPinchZoom(false);
-        chartTime.setDrawGridBackground(false);
-
-        Legend lTime = chartTime.getLegend();
-        lTime.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
-        lTime.setHorizontalAlignment(Legend.LegendHorizontalAlignment.LEFT);
-        lTime.setOrientation(Legend.LegendOrientation.HORIZONTAL);
-        lTime.setDrawInside(false);
-        lTime.setForm(Legend.LegendForm.SQUARE);
-        lTime.setFormSize(9f);
-        lTime.setTextSize(11f);
-        lTime.setXEntrySpace(4f);
-
         setData(5, 100);
-        setDataTime(5,100);
         chart.invalidate();  // Refresh the chart with new data
-        chartTime.invalidate();
-
-        buttonWeek=(Button) getView().findViewById(R.id.buttonWeek);
-        buttonWeek.setOnClickListener(v->{
-
-            setData(8, 100);
-            setDataTime(8,100);
-            chart.invalidate();  // Refresh the chart with new data
-            chartTime.invalidate();
-        });
-
-        buttonMonth=(Button) getView().findViewById(R.id.buttonMonth);
-        buttonMonth.setOnClickListener(v->{
-
-            setData(32, 100);
-            setDataTime(32,100);
-            chart.invalidate();  // Refresh the chart with new data
-            chartTime.invalidate();
-        });
-
 
     }
 
@@ -144,27 +104,13 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
     private void setData(int count, float range) {
         float start = 1f;
         ArrayList<BarEntry> values = new ArrayList<>();
-
-        DataStorage dts = new DataStorage();
-
-        ArrayList<HashMap<String, String>> formList = dts.readWalkData(getActivity().getFilesDir());
-
-        int maxNumOfFields = count;
-        if(formList.size()<count) maxNumOfFields = formList.size();
-
-
-        for (int i = 0; i <  maxNumOfFields-1; i++) {
-
-            /*float val = (float) (Math.random() * (range + 1));
+        for (int i = (int) start; i < start + count; i++) {
+            float val = (float) (Math.random() * (range + 1));
                 if (Math.random() * 100 < 25) {
                     values.add(new BarEntry(i, val));
                 } else {
                     values.add(new BarEntry(i, val));
-                }*/
-            String text =formList.get(i).toString();
-            String data = getDistance(text);
-            float val = Float.parseFloat(data);
-            values.add(new BarEntry(i, val));
+                }
         }
         BarDataSet set1;
         if (chart.getData() != null && chart.getData().getDataSetCount() > 0) {
@@ -203,86 +149,5 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
             data.setBarWidth(0.9f);
             chart.setData(data);
         }
-    }
-
-    private void setDataTime(int count, float range) {
-        float start = 1f;
-        ArrayList<BarEntry> values = new ArrayList<>();
-
-        DataStorage dts = new DataStorage();
-
-        ArrayList<HashMap<String, String>> formList = dts.readWalkData(getActivity().getFilesDir());
-
-        int maxNumOfFields = count;
-        if(formList.size()<count) maxNumOfFields = formList.size();
-
-
-        for (int i = 0; i <  maxNumOfFields-1; i++) {
-
-            String text =formList.get(i).toString();
-            String data = getTime(text);
-            float val = Float.parseFloat(data);
-            values.add(new BarEntry(i, val));
-        }
-        BarDataSet set1;
-        if (chartTime.getData() != null && chartTime.getData().getDataSetCount() > 0) {
-            set1 = (BarDataSet) chartTime.getData().getDataSetByIndex(0);
-            set1.setValues(values);
-            chartTime.getData().notifyDataChanged();
-            chartTime.notifyDataSetChanged();
-        }else {
-            set1 = new BarDataSet(values, "The year 2017");
-            set1.setDrawIcons(false);
-            Context context = getContext();
-            int startColor1 = ContextCompat.getColor(context, android.R.color.holo_orange_light);
-            int startColor2 = ContextCompat.getColor(context, android.R.color.holo_blue_light);
-            int startColor3 = ContextCompat.getColor(context, android.R.color.holo_orange_light);
-            int startColor4 = ContextCompat.getColor(context, android.R.color.holo_green_light);
-            int startColor5 = ContextCompat.getColor(context, android.R.color.holo_red_light);
-            int endColor1 = ContextCompat.getColor(context, android.R.color.holo_blue_dark);
-            int endColor2 = ContextCompat.getColor(context, android.R.color.holo_purple);
-            int endColor3 = ContextCompat.getColor(context, android.R.color.holo_green_dark);
-            int endColor4 = ContextCompat.getColor(context, android.R.color.holo_red_dark);
-            int endColor5 = ContextCompat.getColor(context, android.R.color.holo_orange_dark);
-
-            List<GradientColor> gradientFills = new ArrayList<>();
-            gradientFills.add(new GradientColor(startColor1, endColor1));
-            gradientFills.add(new GradientColor(startColor2, endColor2));
-            gradientFills.add(new GradientColor(startColor3, endColor3));
-            gradientFills.add(new GradientColor(startColor4, endColor4));
-            gradientFills.add(new GradientColor(startColor5, endColor5));
-            set1.setGradientColors(gradientFills);
-
-            ArrayList<IBarDataSet> dataSets = new ArrayList<>();
-            dataSets.add(set1);
-
-            BarData data = new BarData(dataSets);
-            data.setValueTextSize(10f);
-            data.setBarWidth(0.9f);
-            chartTime.setData(data);
-        }
-    }
-
-    public String getDistance(String t)
-    {
-        String []readT = t.split(",");
-        String []readT2 = readT[2].split("=");
-        String time=readT2[1].substring(0, readT2[1].length()-1);
-
-        return time;
-    }
-
-    public String getTime(String t)
-    {
-        String []readT = t.split(",");
-        String []readT2 = readT[0].split("=");
-        String time=readT2[1];
-
-        return time;
-    }
-
-    //ile bylo wpisow w pozadanym przedziale czasowym - np w zeszlym tygodniu bylo 15 spacerow, w zeszlym miesiacu wliczajac ten tydzien 17
-    public int numOfDaysToEntries(int dayCount){
-        return 0;
     }
 }
