@@ -4,6 +4,13 @@
 
 	<!-- General -->
 
+	<!-- Strings for the map -->
+	<string name="start_button">Start</string>
+	<string name="stop_button">Stop</string>
+	<string name="clear_button">Wyczyść</string>
+	<string name="timer_initial">00:00:00</string>
+	<string name="center_button">Center</string>
+	<string name="distance_initial">Dystans: 0 m</string>
 
 
 	<!-- Bluetooth Management -->

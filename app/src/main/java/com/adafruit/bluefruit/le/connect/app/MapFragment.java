@@ -10,6 +10,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,12 +28,16 @@ import org.osmdroid.config.Configuration;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.Polyline;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MapFragment extends ConnectedPeripheralFragment implements UartDataManager.UartDataManagerListener {
 
@@ -44,20 +49,22 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
 
     private Button btnTimer;
     private TextView tvTimer;
+    private TextView tvDistance;   // Wyświetlacz dystansu
     private boolean isRunning = false;
     private Handler timerHandler = new Handler();
     private long startTime = 0;
     private GeoPoint lastKnownLocation;
+    private double distance = 0.0; // Przebyty dystans w metrach
 
-    private Marker locationMarker; // Marker dla lokalizacji użytkownika
-    private Marker startMarker;    // Marker dla miejsca rozpoczęcia stopera
-    private Marker stopMarker;     // Marker dla miejsca zakończenia stopera
+    private Marker locationMarker;
+    private Marker startMarker;
+    private Marker stopMarker;
+    private Polyline trackLine;
+    private List<GeoPoint> trackPoints;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Konfiguracja Osmdroid
         Configuration.getInstance().setUserAgentValue(requireContext().getPackageName());
     }
 
@@ -70,17 +77,15 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Inicjalizacja mapy
         mapView = view.findViewById(R.id.map_view);
         mapView.setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK);
         mapView.setMultiTouchControls(true);
 
-        // Przyciski
         btnTimer = view.findViewById(R.id.btn_timer);
         tvTimer = view.findViewById(R.id.tv_timer);
+        tvDistance = view.findViewById(R.id.tv_distance);
         Button btnCenterMap = view.findViewById(R.id.btn_center_map);
 
-        // Obsługa przycisku do centrowania mapy
         btnCenterMap.setOnClickListener(v -> {
             if (lastKnownLocation != null) {
                 mapView.getController().setCenter(lastKnownLocation);
@@ -88,38 +93,37 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
             }
         });
 
-        // Obsługa przycisku Start/Stop/Wyczyść
         btnTimer.setOnClickListener(v -> toggleTimer());
 
-        // Inicjalizacja klienta lokalizacji
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
 
-        // Sprawdź uprawnienia lokalizacji
         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
         } else {
             requestLocationUpdates();
         }
+
+        trackPoints = new ArrayList<>();
+        trackLine = new Polyline();
+        trackLine.setWidth(10f);
+        mapView.getOverlays().add(trackLine);
     }
 
     private void toggleTimer() {
         if (!isRunning && btnTimer.getText().equals("Start")) {
-            // Uruchom stoper
             isRunning = true;
             btnTimer.setText("Stop");
             startTime = SystemClock.elapsedRealtime();
             timerHandler.post(updateTimerRunnable);
 
-            // Usuń stare markery
-            if (startMarker != null) {
-                mapView.getOverlays().remove(startMarker);
-            }
-            if (stopMarker != null) {
-                mapView.getOverlays().remove(stopMarker);
-            }
+            if (startMarker != null) mapView.getOverlays().remove(startMarker);
+            if (stopMarker != null) mapView.getOverlays().remove(stopMarker);
+            trackPoints.clear();
+            trackLine.setPoints(trackPoints);
+            distance = 0.0; // Reset dystansu
+            tvDistance.setText("Dystans: 0 m");
 
-            // Dodaj marker początkowy w bieżącej lokalizacji
             if (lastKnownLocation != null) {
                 startMarker = new Marker(mapView);
                 startMarker.setPosition(lastKnownLocation);
@@ -127,46 +131,39 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
                 startMarker.setIcon(scaleMarkerIcon(R.drawable.ic_start_marker, 0.08f));
                 startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
                 mapView.getOverlays().add(startMarker);
+                trackPoints.add(lastKnownLocation);
             }
         } else if (isRunning && btnTimer.getText().equals("Stop")) {
-            // Zatrzymaj stoper
             isRunning = false;
             btnTimer.setText("Wyczyść");
             timerHandler.removeCallbacks(updateTimerRunnable);
 
-            // Dodaj marker końcowy w bieżącej lokalizacji
             if (lastKnownLocation != null) {
-                if (stopMarker != null) {
-                    mapView.getOverlays().remove(stopMarker); // Usuń poprzedni marker, jeśli istnieje
-                }
                 stopMarker = new Marker(mapView);
                 stopMarker.setPosition(lastKnownLocation);
                 stopMarker.setTitle("Koniec trasy");
-                stopMarker.setIcon(scaleMarkerIcon(R.drawable.ic_stop_marker, 0.08f)); // Skala
+                stopMarker.setIcon(scaleMarkerIcon(R.drawable.ic_stop_marker, 0.08f));
                 stopMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
                 mapView.getOverlays().add(stopMarker);
+                trackPoints.add(lastKnownLocation);
             }
+            trackLine.setPoints(trackPoints);
         } else if (!isRunning && btnTimer.getText().equals("Wyczyść")) {
-            // Wyczyść stoper
             btnTimer.setText("Start");
             tvTimer.setText("00:00:00");
-
-            // Usuń markery "start" i "stop"
-            if (startMarker != null) {
-                mapView.getOverlays().remove(startMarker);
-                startMarker = null;
-            }
-            if (stopMarker != null) {
-                mapView.getOverlays().remove(stopMarker);
-                stopMarker = null;
-            }
-
-            mapView.invalidate(); // Odśwież mapę
+            tvDistance.setText("Dystans: 0 m");
+            distance = 0.0;
+            lastKnownLocation = null;
+            if (startMarker != null) mapView.getOverlays().remove(startMarker);
+            if (stopMarker != null) mapView.getOverlays().remove(stopMarker);
+            trackPoints.clear();
+            trackLine.setPoints(trackPoints);
         }
+
+        mapView.invalidate();
     }
 
     private Drawable scaleMarkerIcon(int drawableId, float scale) {
-        // Załaduj ikonę jako bitmapę
         Bitmap bitmap = BitmapFactory.decodeResource(requireContext().getResources(), drawableId);
         int width = (int) (bitmap.getWidth() * scale);
         int height = (int) (bitmap.getHeight() * scale);
@@ -200,7 +197,25 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
                 if (locationResult.getLastLocation() != null) {
-                    updateMapWithLocation(locationResult.getLastLocation());
+                    Location newLocation = locationResult.getLastLocation();
+                    updateMapWithLocation(newLocation);
+
+                    if (isRunning) {
+                        GeoPoint newGeoPoint = new GeoPoint(newLocation.getLatitude(), newLocation.getLongitude());
+                        if (lastKnownLocation != null) {
+                            float[] results = new float[1];
+                            Location.distanceBetween(
+                                    lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(),
+                                    newGeoPoint.getLatitude(), newGeoPoint.getLongitude(),
+                                    results);
+                            Log.d("Dystans", "Dodano dystans: " + results[0]);
+                            distance += results[0];
+                        }
+                        lastKnownLocation = newGeoPoint;
+                        trackPoints.add(lastKnownLocation);
+                        trackLine.setPoints(trackPoints);
+                        tvDistance.setText(String.format("Dystans: %.2f m", distance));
+                    }
                 }
             }
         };
@@ -211,33 +226,30 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
     }
 
     private void updateMapWithLocation(Location location) {
-        if (location == null) {
-            return; // Zabezpieczenie przed null
-        }
+        if (location == null) return;
+
         lastKnownLocation = new GeoPoint(location.getLatitude(), location.getLongitude());
 
-        // Aktualizuj marker bieżącej lokalizacji
         if (locationMarker == null) {
             locationMarker = new Marker(mapView);
             locationMarker.setTitle("Twoja lokalizacja");
+            locationMarker.setIcon(scaleMarkerIcon(R.drawable.ic_user_location, 0.1f));
+            locationMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
             mapView.getOverlays().add(locationMarker);
         }
 
-        locationMarker.setPosition(lastKnownLocation); // Aktualizuj pozycję
-        mapView.invalidate(); // Odśwież mapę
+        locationMarker.setPosition(lastKnownLocation);
+        mapView.invalidate();
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (mapView != null) {
-            mapView.onDetach();
-        }
+        if (mapView != null) mapView.onDetach();
     }
 
     @Override
-    public void onUartRx(@NonNull byte[] data, @Nullable String peripheralIdentifier) {
-    }
+    public void onUartRx(@NonNull byte[] data, @Nullable String peripheralIdentifier) {}
 
     public static MapFragment newInstance(@Nullable String singlePeripheralIdentifier) {
         MapFragment fragment = new MapFragment();
