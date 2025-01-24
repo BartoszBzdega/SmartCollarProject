@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 
 import com.adafruit.bluefruit.le.connect.R;
 import com.adafruit.bluefruit.le.connect.ble.central.UartDataManager;
@@ -66,7 +65,7 @@ public class InformationPreview extends ConnectedPeripheralFragment implements U
         });
 
 
-        buttonPetData=(Button) getView().findViewById(R.id.buttonPet);
+        buttonPetData=(Button) getView().findViewById(R.id.Edit);
         buttonPetData.setOnClickListener(v->{
 
             DataStorage dts = new DataStorage();
