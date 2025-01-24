@@ -109,16 +109,16 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
         lTime.setTextSize(11f);
         lTime.setXEntrySpace(4f);
 
-        setData(5, 100);
-        setDataTime(5,100);
+        setData(7, 100);
+        setDataTime(7,100);
         chart.invalidate();  // Refresh the chart with new data
         chartTime.invalidate();
 
         buttonWeek=(Button) getView().findViewById(R.id.buttonWeek);
         buttonWeek.setOnClickListener(v->{
 
-            setData(8, 100);
-            setDataTime(8,100);
+            setData(7, 100);
+            setDataTime(7,100);
             chart.invalidate();  // Refresh the chart with new data
             chartTime.invalidate();
         });
@@ -126,8 +126,8 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
         buttonMonth=(Button) getView().findViewById(R.id.buttonMonth);
         buttonMonth.setOnClickListener(v->{
 
-            setData(32, 100);
-            setDataTime(32,100);
+            setData(31, 100);
+            setDataTime(31,100);
             chart.invalidate();  // Refresh the chart with new data
             chartTime.invalidate();
         });
@@ -142,25 +142,20 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
     }
 
     private void setData(int count, float range) {
-        float start = 1f;
+        int start = 0;
         ArrayList<BarEntry> values = new ArrayList<>();
 
         DataStorage dts = new DataStorage();
 
         ArrayList<HashMap<String, String>> formList = dts.readWalkData(getActivity().getFilesDir());
 
-        int maxNumOfFields = count;
-        if(formList.size()<count) maxNumOfFields = formList.size();
+        int maxNumOfFields =  formList.size();
+
+        if(formList.size()>count) start = formList.size() - count;
+
+        for (int i = start; i <  maxNumOfFields; i++) {
 
 
-        for (int i = 0; i <  maxNumOfFields-1; i++) {
-
-            /*float val = (float) (Math.random() * (range + 1));
-                if (Math.random() * 100 < 25) {
-                    values.add(new BarEntry(i, val));
-                } else {
-                    values.add(new BarEntry(i, val));
-                }*/
             String text =formList.get(i).toString();
             String data = getDistance(text);
             float val = Float.parseFloat(data);
@@ -206,18 +201,19 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
     }
 
     private void setDataTime(int count, float range) {
-        float start = 1f;
+        int start = 0;
         ArrayList<BarEntry> values = new ArrayList<>();
 
         DataStorage dts = new DataStorage();
 
         ArrayList<HashMap<String, String>> formList = dts.readWalkData(getActivity().getFilesDir());
 
-        int maxNumOfFields = count;
-        if(formList.size()<count) maxNumOfFields = formList.size();
+        int maxNumOfFields =formList.size();
 
+        if(formList.size()>count)start = formList.size()-count;
+        Log.d("i", String.valueOf(formList.size()));
 
-        for (int i = 0; i <  maxNumOfFields-1; i++) {
+        for (int i = start; i <  maxNumOfFields; i++) {
 
             String text =formList.get(i).toString();
             String data = getTime(text);
@@ -284,5 +280,15 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
     //ile bylo wpisow w pozadanym przedziale czasowym - np w zeszlym tygodniu bylo 15 spacerow, w zeszlym miesiacu wliczajac ten tydzien 17
     public int numOfDaysToEntries(int dayCount){
         return 0;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Załaduj nowe dane lub zaktualizuj dane
+        setData(7, 100);
+        setDataTime(7,100);
+        chart.invalidate();  // Refresh the chart with new data
+        chartTime.invalidate();
     }
 }
