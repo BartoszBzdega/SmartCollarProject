@@ -227,7 +227,7 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
             chartTime.getData().notifyDataChanged();
             chartTime.notifyDataSetChanged();
         }else {
-            set1 = new BarDataSet(values, "The year 2017");
+            set1 = new BarDataSet(values, "");
             set1.setDrawIcons(false);
             Context context = getContext();
             int startColor1 = ContextCompat.getColor(context, android.R.color.holo_orange_light);
