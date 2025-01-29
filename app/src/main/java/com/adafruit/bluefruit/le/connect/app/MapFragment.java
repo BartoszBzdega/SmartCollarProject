@@ -36,6 +36,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,10 +63,15 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
     private Polyline trackLine;
     private List<GeoPoint> trackPoints;
 
+    private DataStorage dataStorage; // Obiekt DataStorage
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Configuration.getInstance().setUserAgentValue(requireContext().getPackageName());
+
+        // Inicjalizacja DataStorage
+        dataStorage = new DataStorage();
     }
 
     @Override
@@ -80,6 +86,9 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
         mapView = view.findViewById(R.id.map_view);
         mapView.setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK);
         mapView.setMultiTouchControls(true);
+
+        // Ustawienie domyślnego poziomu przybliżenia
+        mapView.getController().setZoom(15.0);  // Możesz dostosować wartość przybliżenia
 
         btnTimer = view.findViewById(R.id.btn_timer);
         tvTimer = view.findViewById(R.id.tv_timer);
@@ -109,6 +118,7 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
         trackLine.setWidth(10f);
         mapView.getOverlays().add(trackLine);
     }
+
 
     private void toggleTimer() {
         if (!isRunning && btnTimer.getText().equals("Start")) {
@@ -148,6 +158,11 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
                 trackPoints.add(lastKnownLocation);
             }
             trackLine.setPoints(trackPoints);
+
+            // Zapisz dane do bazy po zakończeniu stopera
+            File path = requireContext().getFilesDir(); // Ścieżka do pamięci wewnętrznej
+            long elapsedTime = (SystemClock.elapsedRealtime() - startTime) / 1000; // Czas w sekundach
+            dataStorage.saveWalkData((float) distance, (float) elapsedTime, path);
         } else if (!isRunning && btnTimer.getText().equals("Wyczyść")) {
             btnTimer.setText("Start");
             tvTimer.setText("00:00:00");
@@ -189,41 +204,71 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
 
     private void requestLocationUpdates() {
         LocationRequest locationRequest = LocationRequest.create()
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(5000)
-                .setFastestInterval(2000);
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)  // Wysoka dokładność GPS
+                .setInterval(2000)           // Odświeżanie co 2 sekundy
+                .setFastestInterval(1000)    // Najszybsze odświeżanie co 1 sekundę
+                .setMaxWaitTime(3000);       // Maksymalny czas oczekiwania (3 sekundy)
 
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
                 if (locationResult.getLastLocation() != null) {
                     Location newLocation = locationResult.getLastLocation();
-                    updateMapWithLocation(newLocation);
 
-                    if (isRunning) {
+                    // Sprawdzenie dokładności lokalizacji
+                    if (newLocation.hasAccuracy() && newLocation.getAccuracy() < 20.0) {
                         GeoPoint newGeoPoint = new GeoPoint(newLocation.getLatitude(), newLocation.getLongitude());
-                        if (lastKnownLocation != null) {
-                            float[] results = new float[1];
-                            Location.distanceBetween(
-                                    lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(),
-                                    newGeoPoint.getLatitude(), newGeoPoint.getLongitude(),
-                                    results);
-                            Log.d("Dystans", "Dodano dystans: " + results[0]);
-                            distance += results[0];
+
+                        // **Centrowanie mapy przy pierwszym odświeżeniu lokalizacji**
+                        if (lastKnownLocation == null) {
+                            mapView.getController().setCenter(newGeoPoint);
+                            mapView.getController().setZoom(17.0);
                         }
+
+                        // **Aktualizacja ścieżki i dystansu tylko, gdy stoper jest uruchomiony**
+                        if (isRunning) {
+                            if (lastKnownLocation != null) {
+                                Location previousLocation = new Location("");
+                                previousLocation.setLatitude(lastKnownLocation.getLatitude());
+                                previousLocation.setLongitude(lastKnownLocation.getLongitude());
+
+                                Location currentLocation = new Location("");
+                                currentLocation.setLatitude(newGeoPoint.getLatitude());
+                                currentLocation.setLongitude(newGeoPoint.getLongitude());
+
+                                float distanceBetweenPoints = previousLocation.distanceTo(currentLocation);
+
+                                if (distanceBetweenPoints > 0.1) {
+                                    distance += distanceBetweenPoints;
+                                    tvDistance.setText(String.format("Dystans: %.2f m", distance));
+                                }
+                            }
+
+                            // Dodanie punktu do ścieżki, gdy stoper jest uruchomiony
+                            trackPoints.add(newGeoPoint);
+                            trackLine.setPoints(trackPoints);
+                        }
+
+                        // Aktualizacja pozycji
                         lastKnownLocation = newGeoPoint;
-                        trackPoints.add(lastKnownLocation);
-                        trackLine.setPoints(trackPoints);
-                        tvDistance.setText(String.format("Dystans: %.2f m", distance));
+                        updateMapWithLocation(newLocation);
+                    } else {
+                        Log.d("Distance Tracker", "Pominięto lokalizację z powodu niskiej dokładności: " + newLocation.getAccuracy() + " m");
                     }
                 }
             }
         };
 
+
+        // Sprawdzenie uprawnień i rozpoczęcie aktualizacji lokalizacji
         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
         }
     }
+
+
+
+
 
     private void updateMapWithLocation(Location location) {
         if (location == null) return;
@@ -256,4 +301,4 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
         fragment.setArguments(createFragmentArgs(singlePeripheralIdentifier));
         return fragment;
     }
-}
+} 
