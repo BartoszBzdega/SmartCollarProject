@@ -135,14 +135,16 @@ public class DataStorage {
             File plik=new File(path,petDataFile);
 
 
-            if(!plik.exists()) {
+            if(!plik.exists())
+            {
                 plik.createNewFile();
-            }                FileOutputStream fos = new FileOutputStream(plik);
+            }
+                FileOutputStream fos = new FileOutputStream(plik);
                 OutputStreamWriter osw = new OutputStreamWriter(fos);
 
                 JSONObject jobject = new JSONObject();
                 jobject.put("Name",name);
-                jobject.put("age",age);
+                jobject.put("Age",age);
                 jobject.put("Weight",weight);
 
                 osw.write(jobject.toString());
@@ -184,33 +186,62 @@ public class DataStorage {
 
                JSONObject obj = new JSONObject(loadJSONFromAsset(plik));
                //pusta nazwa obiektu, wyzej tez nie jest podana, mozliwe ze wywali
-               JSONArray jArry = obj.getJSONArray("");
+
                formList = new ArrayList<HashMap<String, String>>();
-               HashMap<String, String> m_li;
 
-               for (int i = 0; i < jArry.length(); i++) {
-                   //TODO: dodać odczytywanie wszystkich danych, i odczytywanie petdatainfo
-                   JSONObject jo_inside = jArry.getJSONObject(i);
-                   //reading particular fields from json
-                   String nameValue = jo_inside.getString("Name");
-                   String ageValue = jo_inside.getString("age");
-                   String weightValue = jo_inside.getString("Weight");
+                HashMap<String, String> m_li = new HashMap<>();
+                String nameValue = obj.getString("Name");
+                String ageValue = obj.getString("Age");  // Używamy poprawnego klucza "Age"
+                String weightValue = obj.getString("Weight");
 
-                   //Add your values in your `ArrayList` as below:
-                   m_li = new HashMap<String, String>();
-                   m_li.put("Name", nameValue);
-                   m_li.put("Age",ageValue);
-                   m_li.put("Weight",weightValue);
+           // Przechowujemy odczytane wartości w HashMap
+           m_li.put("Name", nameValue);
+           m_li.put("Age", ageValue);
+           m_li.put("Weight", weightValue);
 
-                   formList.add(m_li);
+           // Dodajemy dane do listy
+           formList.add(m_li);
+           return formList;
 
-               }
-       return formList;
        }
+       else
+       {
+           plik.createNewFile();
+
+           FileOutputStream fos = new FileOutputStream(plik);
+           OutputStreamWriter osw = new OutputStreamWriter(fos);
+
+           String name="no name";
+           String age ="no age";
+           String weight = "no weight";
+
+           JSONObject jobject = new JSONObject();
+           jobject.put("Name",name);
+           jobject.put("Age",age);
+           jobject.put("Weight",weight);
+
+           osw.write(jobject.toString());
+           osw.flush();
+           fos.getFD().sync();
+           osw.close();
+
+       }
+
        } catch (Exception e) {
            throw new RuntimeException(e);
        }
     return formList;
+    }
+
+    public boolean checkPetDataFileExists(File path)
+    {
+        File plik =new File(path,fileName);
+        if(plik.exists())
+        {
+            return true;
+
+        }else{return false;}
+
     }
 
     public ArrayList readWalkData(File path){

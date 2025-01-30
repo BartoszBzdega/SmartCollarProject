@@ -150,4 +150,99 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
             chart.setData(data);
         }
     }
+<<<<<<< HEAD
+=======
+
+    private void setDataTime(int count, float range) {
+        int start = 0;
+        ArrayList<BarEntry> values = new ArrayList<>();
+
+        DataStorage dts = new DataStorage();
+
+        ArrayList<HashMap<String, String>> formList = dts.readWalkData(getActivity().getFilesDir());
+
+        int maxNumOfFields =formList.size();
+
+        if(formList.size()>count)start = formList.size()-count;
+        Log.d("i", String.valueOf(formList.size()));
+
+        for (int i = start; i <  maxNumOfFields; i++) {
+
+            String text =formList.get(i).toString();
+            String data = getTime(text);
+            float val = Float.parseFloat(data);
+            values.add(new BarEntry(i, val));
+        }
+        BarDataSet set1;
+        if (chartTime.getData() != null && chartTime.getData().getDataSetCount() > 0) {
+            set1 = (BarDataSet) chartTime.getData().getDataSetByIndex(0);
+            set1.setValues(values);
+            chartTime.getData().notifyDataChanged();
+            chartTime.notifyDataSetChanged();
+        }else {
+            set1 = new BarDataSet(values, "");
+            set1.setDrawIcons(false);
+            Context context = getContext();
+            int startColor1 = ContextCompat.getColor(context, android.R.color.holo_orange_light);
+            int startColor2 = ContextCompat.getColor(context, android.R.color.holo_blue_light);
+            int startColor3 = ContextCompat.getColor(context, android.R.color.holo_orange_light);
+            int startColor4 = ContextCompat.getColor(context, android.R.color.holo_green_light);
+            int startColor5 = ContextCompat.getColor(context, android.R.color.holo_red_light);
+            int endColor1 = ContextCompat.getColor(context, android.R.color.holo_blue_dark);
+            int endColor2 = ContextCompat.getColor(context, android.R.color.holo_purple);
+            int endColor3 = ContextCompat.getColor(context, android.R.color.holo_green_dark);
+            int endColor4 = ContextCompat.getColor(context, android.R.color.holo_red_dark);
+            int endColor5 = ContextCompat.getColor(context, android.R.color.holo_orange_dark);
+
+            List<GradientColor> gradientFills = new ArrayList<>();
+            gradientFills.add(new GradientColor(startColor1, endColor1));
+            gradientFills.add(new GradientColor(startColor2, endColor2));
+            gradientFills.add(new GradientColor(startColor3, endColor3));
+            gradientFills.add(new GradientColor(startColor4, endColor4));
+            gradientFills.add(new GradientColor(startColor5, endColor5));
+            set1.setGradientColors(gradientFills);
+
+            ArrayList<IBarDataSet> dataSets = new ArrayList<>();
+            dataSets.add(set1);
+
+            BarData data = new BarData(dataSets);
+            data.setValueTextSize(10f);
+            data.setBarWidth(0.9f);
+            chartTime.setData(data);
+        }
+    }
+
+    public String getDistance(String t)
+    {
+        String []readT = t.split(",");
+        String []readT2 = readT[2].split("=");
+        String time=readT2[1].substring(0, readT2[1].length()-1);
+
+        return time;
+    }
+
+    public String getTime(String t)
+    {
+        String []readT = t.split(",");
+        String []readT2 = readT[0].split("=");
+        String time=readT2[1];
+
+        return time;
+    }
+
+    //ile bylo wpisow w pozadanym przedziale czasowym - np w zeszlym tygodniu bylo 15 spacerow, w zeszlym miesiacu wliczajac ten tydzien 17
+    public int numOfDaysToEntries(int dayCount){
+        return 0;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Załaduj nowe dane lub zaktualizuj dane
+        setData(7, 100);
+        setDataTime(7,100);
+        chart.invalidate();  // Refresh the chart with new data
+        chartTime.invalidate();
+    }
+>>>>>>> 72d372dcf7f95eb0c29ee6cb44d28bc04393587b
 }
