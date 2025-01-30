@@ -110,6 +110,9 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
         setDataTime(7, 100);
         chart.invalidate();  // Refresh the chart with new data
         chartTime.invalidate();  // Refresh the chart with new data
+        chart.invalidate();  // Refresh the chart with new data
+
+        chartTime.invalidate();  // Refresh the chart with new data
         buttonWeek=(Button)getView().findViewById(R.id.buttonWeek);
         buttonWeek.setOnClickListener(v->{
             setData(7, 100);
@@ -118,8 +121,7 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
         chartTime.invalidate();} );
 
 
-        chart.invalidate();  // Refresh the chart with new data
-        chartTime.invalidate();  // Refresh the chart with new data
+
         buttonMonth=(Button)getView().findViewById(R.id.buttonMonth);
         buttonMonth.setOnClickListener(v->{
             setData(31, 100);
@@ -137,16 +139,27 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
     }
 
     private void setData(int count, float range) {
-        float start = 1f;
+
+        int start = 0;
         ArrayList<BarEntry> values = new ArrayList<>();
-        for (int i = (int) start; i < start + count; i++) {
-            float val = (float) (Math.random() * (range + 1));
-            if (Math.random() * 100 < 25) {
-                values.add(new BarEntry(i, val));
-            } else {
-                values.add(new BarEntry(i, val));
-            }
+
+        DataStorage dts = new DataStorage();
+
+        ArrayList<HashMap<String, String>> formList = dts.readWalkData(getActivity().getFilesDir());
+
+        int maxNumOfFields =formList.size();
+
+        if(formList.size()>count)start = formList.size()-count;
+        Log.d("i", String.valueOf(formList.size()));
+
+        for (int i = start; i <  maxNumOfFields; i++) {
+
+            String text =formList.get(i).toString();
+            String data = getDistance(text);
+            float val = Float.parseFloat(data);
+            values.add(new BarEntry(i, val));
         }
+
         BarDataSet set1;
         if (chart.getData() != null && chart.getData().getDataSetCount() > 0) {
             set1 = (BarDataSet) chart.getData().getDataSetByIndex(0);
