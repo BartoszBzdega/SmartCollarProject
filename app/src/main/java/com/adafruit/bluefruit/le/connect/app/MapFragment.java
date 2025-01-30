@@ -301,4 +301,4 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
         fragment.setArguments(createFragmentArgs(singlePeripheralIdentifier));
         return fragment;
     }
-} 
+}

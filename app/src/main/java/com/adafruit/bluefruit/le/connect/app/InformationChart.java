@@ -34,8 +34,9 @@ import java.util.HashMap;
 public class InformationChart extends ConnectedPeripheralFragment implements UartDataManager.UartDataManagerListener{
 
     private BarChart chart;
-    private SeekBar seekBarX, seekBarY;
-    private TextView tvX, tvY;
+    private BarChart chartTime;
+    private Button buttonWeek;
+    private Button buttonMonth;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,17 +60,13 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
 
         getActivity().getWindow().setFlags
                 (WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                        WindowManager.LayoutParams.FLAG_FULLSCREEN);
         //getActivity().setContentView(R.layout.activity_main);
         getActivity().setTitle("BarChartActivity");
 
         // Initialize the views using findViewById
         chart = view.findViewById(R.id.chart); // Make sure your layout has a BarChart with this ID
-        seekBarX = view.findViewById(R.id.seekBarX); // SeekBar for controlling X axis
-        seekBarY = view.findViewById(R.id.seekBarY); // SeekBar for controlling Y axis
-        tvX = view.findViewById(R.id.tvX); // TextView for displaying X axis value
-        tvY = view.findViewById(R.id.tvY); // TextView for displaying Y axis value
-
+        chartTime = view.findViewById(R.id.chartTime); // Make sure your layout has a BarChart with this ID
 
         chart.setDrawBarShadow(false);
         chart.setDrawValueAboveBar(true);
@@ -79,6 +76,15 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
         // scaling can now only be done on x- and y-axis separately
         chart.setPinchZoom(false);
         chart.setDrawGridBackground(false);
+
+        chartTime.setDrawBarShadow(false);
+        chartTime.setDrawValueAboveBar(true);
+        chartTime.getDescription().setEnabled(false);
+        // if more than 60 entries are displayed in the chart, no values will be drawn
+        chartTime.setMaxVisibleValueCount(60);
+        // scaling can now only be done on x- and y-axis separately
+        chartTime.setPinchZoom(false);
+        chartTime.setDrawGridBackground(false);
 
         Legend l = chart.getLegend();
         l.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
@@ -90,8 +96,37 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
         l.setTextSize(11f);
         l.setXEntrySpace(4f);
 
-        setData(5, 100);
+        Legend lTime = chartTime.getLegend();
+        lTime.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
+        lTime.setHorizontalAlignment(Legend.LegendHorizontalAlignment.LEFT);
+        lTime.setOrientation(Legend.LegendOrientation.HORIZONTAL);
+        lTime.setDrawInside(false);
+        lTime.setForm(Legend.LegendForm.SQUARE);
+        lTime.setFormSize(9f);
+        lTime.setTextSize(11f);
+        lTime.setXEntrySpace(4f);
+
+        setData(7, 100);
+        setDataTime(7, 100);
         chart.invalidate();  // Refresh the chart with new data
+        chartTime.invalidate();  // Refresh the chart with new data
+        buttonWeek=(Button)getView().findViewById(R.id.buttonWeek);
+        buttonWeek.setOnClickListener(v->{
+            setData(7, 100);
+        setDataTime(7, 100);
+        chart.invalidate();
+        chartTime.invalidate();} );
+
+
+        chart.invalidate();  // Refresh the chart with new data
+        chartTime.invalidate();  // Refresh the chart with new data
+        buttonMonth=(Button)getView().findViewById(R.id.buttonMonth);
+        buttonMonth.setOnClickListener(v->{
+            setData(31, 100);
+            setDataTime(31, 100);
+            chart.invalidate();
+            chartTime.invalidate();} );
+
 
     }
 
@@ -106,11 +141,11 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
         ArrayList<BarEntry> values = new ArrayList<>();
         for (int i = (int) start; i < start + count; i++) {
             float val = (float) (Math.random() * (range + 1));
-                if (Math.random() * 100 < 25) {
-                    values.add(new BarEntry(i, val));
-                } else {
-                    values.add(new BarEntry(i, val));
-                }
+            if (Math.random() * 100 < 25) {
+                values.add(new BarEntry(i, val));
+            } else {
+                values.add(new BarEntry(i, val));
+            }
         }
         BarDataSet set1;
         if (chart.getData() != null && chart.getData().getDataSetCount() > 0) {
@@ -150,8 +185,7 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
             chart.setData(data);
         }
     }
-<<<<<<< HEAD
-=======
+
 
     private void setDataTime(int count, float range) {
         int start = 0;
@@ -244,5 +278,4 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
         chart.invalidate();  // Refresh the chart with new data
         chartTime.invalidate();
     }
->>>>>>> 72d372dcf7f95eb0c29ee6cb44d28bc04393587b
 }
