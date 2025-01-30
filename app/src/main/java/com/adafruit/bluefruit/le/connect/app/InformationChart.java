@@ -33,6 +33,7 @@ import java.util.HashMap;
 
 public class InformationChart extends ConnectedPeripheralFragment implements UartDataManager.UartDataManagerListener{
 
+    private TextView noDataInfo;
     private BarChart chart;
     private BarChart chartTime;
     private Button buttonWeek;
@@ -64,6 +65,8 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
         //getActivity().setContentView(R.layout.activity_main);
         getActivity().setTitle("BarChartActivity");
 
+        noDataInfo = view.findViewById(R.id.noDataInfo);
+        noDataInfo.setVisibility(View.GONE);
         // Initialize the views using findViewById
         chart = view.findViewById(R.id.chart); // Make sure your layout has a BarChart with this ID
         chartTime = view.findViewById(R.id.chartTime); // Make sure your layout has a BarChart with this ID
@@ -106,19 +109,12 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
         lTime.setTextSize(11f);
         lTime.setXEntrySpace(4f);
 
-        setData(7, 100);
-        setDataTime(7, 100);
-        chart.invalidate();  // Refresh the chart with new data
-        chartTime.invalidate();  // Refresh the chart with new data
-        chart.invalidate();  // Refresh the chart with new data
-
-        chartTime.invalidate();  // Refresh the chart with new data
         buttonWeek=(Button)getView().findViewById(R.id.buttonWeek);
         buttonWeek.setOnClickListener(v->{
             setData(7, 100);
-        setDataTime(7, 100);
-        chart.invalidate();
-        chartTime.invalidate();} );
+            setDataTime(7, 100);
+            chart.invalidate();
+            chartTime.invalidate();} );
 
 
 
@@ -128,6 +124,15 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
             setDataTime(31, 100);
             chart.invalidate();
             chartTime.invalidate();} );
+
+        setData(7, 100);
+        setDataTime(7, 100);
+        chart.invalidate();  // Refresh the chart with new data
+        chartTime.invalidate();  // Refresh the chart with new data
+        chart.invalidate();  // Refresh the chart with new data
+
+        chartTime.invalidate();  // Refresh the chart with new data
+
 
 
     }
@@ -146,56 +151,67 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
         DataStorage dts = new DataStorage();
 
         ArrayList<HashMap<String, String>> formList = dts.readWalkData(getActivity().getFilesDir());
+        if(formList.isEmpty())
+        {
+            noDataInfo.setVisibility(View.VISIBLE);
+            chart.setVisibility(View.INVISIBLE);
+            chartTime.setVisibility(View.INVISIBLE);
+            buttonMonth.setVisibility(View.INVISIBLE);
+            buttonWeek.setVisibility(View.INVISIBLE);
 
-        int maxNumOfFields =formList.size();
-
-        if(formList.size()>count)start = formList.size()-count;
-        Log.d("i", String.valueOf(formList.size()));
-
-        for (int i = start; i <  maxNumOfFields; i++) {
-
-            String text =formList.get(i).toString();
-            String data = getDistance(text);
-            float val = Float.parseFloat(data);
-            values.add(new BarEntry(i, val));
         }
+        else {
+            //chart.setVisibility(View.VISIBLE);
+            int maxNumOfFields = formList.size();
 
-        BarDataSet set1;
-        if (chart.getData() != null && chart.getData().getDataSetCount() > 0) {
-            set1 = (BarDataSet) chart.getData().getDataSetByIndex(0);
-            set1.setValues(values);
-            chart.getData().notifyDataChanged();
-            chart.notifyDataSetChanged();
-        }else {
-            set1 = new BarDataSet(values, "The year 2017");
-            set1.setDrawIcons(false);
-            Context context = getContext();
-            int startColor1 = ContextCompat.getColor(context, android.R.color.holo_orange_light);
-            int startColor2 = ContextCompat.getColor(context, android.R.color.holo_blue_light);
-            int startColor3 = ContextCompat.getColor(context, android.R.color.holo_orange_light);
-            int startColor4 = ContextCompat.getColor(context, android.R.color.holo_green_light);
-            int startColor5 = ContextCompat.getColor(context, android.R.color.holo_red_light);
-            int endColor1 = ContextCompat.getColor(context, android.R.color.holo_blue_dark);
-            int endColor2 = ContextCompat.getColor(context, android.R.color.holo_purple);
-            int endColor3 = ContextCompat.getColor(context, android.R.color.holo_green_dark);
-            int endColor4 = ContextCompat.getColor(context, android.R.color.holo_red_dark);
-            int endColor5 = ContextCompat.getColor(context, android.R.color.holo_orange_dark);
+            if (formList.size() > count) start = formList.size() - count;
+            Log.d("i", String.valueOf(formList.size()));
 
-            List<GradientColor> gradientFills = new ArrayList<>();
-            gradientFills.add(new GradientColor(startColor1, endColor1));
-            gradientFills.add(new GradientColor(startColor2, endColor2));
-            gradientFills.add(new GradientColor(startColor3, endColor3));
-            gradientFills.add(new GradientColor(startColor4, endColor4));
-            gradientFills.add(new GradientColor(startColor5, endColor5));
-            set1.setGradientColors(gradientFills);
+            for (int i = start; i < maxNumOfFields; i++) {
 
-            ArrayList<IBarDataSet> dataSets = new ArrayList<>();
-            dataSets.add(set1);
+                String text = formList.get(i).toString();
+                String data = getDistance(text);
+                float val = Float.parseFloat(data);
+                values.add(new BarEntry(i, val));
+            }
 
-            BarData data = new BarData(dataSets);
-            data.setValueTextSize(10f);
-            data.setBarWidth(0.9f);
-            chart.setData(data);
+            BarDataSet set1;
+            if (chart.getData() != null && chart.getData().getDataSetCount() > 0) {
+                set1 = (BarDataSet) chart.getData().getDataSetByIndex(0);
+                set1.setValues(values);
+                chart.getData().notifyDataChanged();
+                chart.notifyDataSetChanged();
+            } else {
+                set1 = new BarDataSet(values, "Distance in metres");
+                set1.setDrawIcons(false);
+                Context context = getContext();
+                int startColor1 = ContextCompat.getColor(context, android.R.color.holo_orange_light);
+                int startColor2 = ContextCompat.getColor(context, android.R.color.holo_blue_light);
+                int startColor3 = ContextCompat.getColor(context, android.R.color.holo_orange_light);
+                int startColor4 = ContextCompat.getColor(context, android.R.color.holo_green_light);
+                int startColor5 = ContextCompat.getColor(context, android.R.color.holo_red_light);
+                int endColor1 = ContextCompat.getColor(context, android.R.color.holo_blue_dark);
+                int endColor2 = ContextCompat.getColor(context, android.R.color.holo_purple);
+                int endColor3 = ContextCompat.getColor(context, android.R.color.holo_green_dark);
+                int endColor4 = ContextCompat.getColor(context, android.R.color.holo_red_dark);
+                int endColor5 = ContextCompat.getColor(context, android.R.color.holo_orange_dark);
+
+                List<GradientColor> gradientFills = new ArrayList<>();
+                gradientFills.add(new GradientColor(startColor1, endColor1));
+                gradientFills.add(new GradientColor(startColor2, endColor2));
+                gradientFills.add(new GradientColor(startColor3, endColor3));
+                gradientFills.add(new GradientColor(startColor4, endColor4));
+                gradientFills.add(new GradientColor(startColor5, endColor5));
+                set1.setGradientColors(gradientFills);
+
+                ArrayList<IBarDataSet> dataSets = new ArrayList<>();
+                dataSets.add(set1);
+
+                BarData data = new BarData(dataSets);
+                data.setValueTextSize(10f);
+                data.setBarWidth(0.9f);
+                chart.setData(data);
+            }
         }
     }
 
@@ -227,7 +243,7 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
             chartTime.getData().notifyDataChanged();
             chartTime.notifyDataSetChanged();
         }else {
-            set1 = new BarDataSet(values, "");
+            set1 = new BarDataSet(values, "Time in seconds");
             set1.setDrawIcons(false);
             Context context = getContext();
             int startColor1 = ContextCompat.getColor(context, android.R.color.holo_orange_light);
