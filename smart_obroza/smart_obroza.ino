@@ -176,25 +176,7 @@ void setup() {
   Wire.onReceive(receiveEvent); // register event
 }
 void loop() {
-  lsm.read();
-  Serial.print("Accel X: "); Serial.print((int)lsm.accelData.x); Serial.print(" ");
-  Serial.print("Y: "); Serial.print((int)lsm.accelData.y);       Serial.print(" ");
-  Serial.print("Z: "); Serial.println((int)lsm.accelData.z);     Serial.print(" ");
-  float x = lsm.accelData.x/1000;
-  float y = lsm.accelData.y/1000;
-  float z = lsm.accelData.z/1000;
-  wek = sqrt(x * x + y * y + z * z)-1.3;
-  wekfin = wek * 9.81;
-  Serial.print(wekfin);
-  delay(500);
-  for(int i = 0; i < 5; i++) {
-  while(Wire.available())
-  {
-    char receivedChar = Wire.read();
-    GPSdata += receivedChar;
-  }
-  delay(1000);
-  }
+
 int prevIndex = 0;
 int slashIndex;
 int index = 0;
@@ -223,43 +205,45 @@ Serial.println("Updated GPS Data:");
     Serial.print(": ");
     Serial.println(GPSdatafloat[i]);
   }
+ GPSdata = "";
 
-    GPSdata = "";
-  //tu dać rozdzielanie za pomocą znaków specialnych
-  //po czym je wysłać przez ble
-
-  // {
-  //     x = Wire.read();
-  //     Serial.println(x);
-  // }
-  // {
-  //   for(int i = 0; i < 6; i++) {
-  //    GPSdataArray[i] = Wire.read();
-  //   Serial.println(GPSdataArray[i]);
-  //  }
-    
-  // }
-  // Serial.println("Sending data: ");
-  // Serial.println(GPSdatafloat[0]);
-
-  // char buffer[50];
-  // sprintf(buffer, "%f %f %f", GPSdatafloat[0], GPSdatafloat[1], wekfin);
-  
-  // Serial.println(buffer);
-  // ble.println(buffer);
+  lsm.read();
+  Serial.print("Accel X: "); Serial.print((int)lsm.accelData.x); Serial.print(" ");
+  Serial.print("Y: "); Serial.print((int)lsm.accelData.y);       Serial.print(" ");
+  Serial.print("Z: "); Serial.println((int)lsm.accelData.z);     Serial.print(" ");
+  float x = lsm.accelData.x/1000;
+  float y = lsm.accelData.y/1000;
+  float z = lsm.accelData.z/1000;
+  wek = sqrt(x * x + y * y + z * z)-1.3;
+  wekfin = wek * 9.81;
+  Serial.println(wekfin);
+  delay(500);
+  for(int i = 0; i < 5; i++) {
+  while(Wire.available())
+  {
+    char receivedChar = Wire.read();
+    GPSdata += receivedChar;
+  }
+  delay(1000);
+  }
 
 
-  // String s = "";
-  // s += GPSdatafloat[0];
-  // s += " ";
-  // s += GPSdatafloat[1];
-  // s += " ";
-  // s += String(wekfin,4);
-  // Serial.println(s);
-  // ble.println(s);
-  // Serial.println(GPSdatafloat[1]);
-  // //ble.println(GPSdatafloat[1]);
-  // ble.print("%f %f \n",GPSdatafloat[0],GPSdatafloat[1]);
+  char str1[10], str2[10], str3[10];
+  dtostrf(GPSdatafloat[0], 6, 3, str1);  // 6 to minimalna szerokość, 2 to liczba miejsc po przecinku
+  dtostrf(GPSdatafloat[0], 6, 3, str2);
+  dtostrf(wekfin, 6, 3, str3);  // Ustalamy 1 miejsce po przecinku dla wartości 0.3
+
+  Serial.println("GPS Send:");
+  Serial.println(GPSdatafloat[0]);
+  Serial.println(GPSdatafloat[1]);
+  Serial.println(wekfin);
+  // String str1 = String(GPSdatafloat[0]);
+  // String str2 = String(GPSdatafloat[1]);
+  // String str3 = String(wekfin);
+  String  comb = String(str1) + ", " + String(str2) + ", " + String(str3);
+  Serial.println(comb);
+  ble.print(comb);
+
 }
 // }
 void receiveEvent() {
