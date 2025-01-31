@@ -74,14 +74,14 @@ public class MainActivity extends AppCompatActivity implements ScannerFragment.S
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button b = findViewById(R.id.TestButton);
+        /*Button b = findViewById(R.id.TestButton);
         b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showPeripheralModulesFragment();
             }
         });
-
+        */
         FragmentManager fragmentManager = getSupportFragmentManager();
         if (savedInstanceState == null) {
             // Set mainmenu fragment

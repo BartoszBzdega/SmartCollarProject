@@ -11,13 +11,6 @@
     <FrameLayout
         android:id="@+id/contentLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
-
-        <Button
-            android:id="@+id/TestButton"
-            android:layout_width="wrap_content"
-            android:layout_height="76dp"
-            android:text="TEST Show modules" />
-    </FrameLayout>
+        android:layout_height="match_parent" />
 
 </RelativeLayout>
