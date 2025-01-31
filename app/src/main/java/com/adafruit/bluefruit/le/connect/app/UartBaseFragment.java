@@ -93,6 +93,7 @@ public abstract class UartBaseFragment extends ConnectedPeripheralFragment imple
     protected Spinner mSendPeripheralSpinner;
     private ViewGroup mKeyboardAccessoryView;
     protected TextView mTerminalTitleTextView;
+    public static String packetData;
 
     // UI TextBuffer (refreshing the text buffer is managed with a timer because a lot of changes can arrive really fast and could stall the main thread)
     private final Handler mUIRefreshTimerHandler = new Handler();
@@ -143,6 +144,7 @@ public abstract class UartBaseFragment extends ConnectedPeripheralFragment imple
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
         if (getArguments() != null) {
             mMode = getArguments().getInt(ARG_MODE);
         }
@@ -649,7 +651,7 @@ public abstract class UartBaseFragment extends ConnectedPeripheralFragment imple
 
     private void reloadData() {
         List<UartPacket> packetsCache = mUartData.getPacketsCache(); //TODO: odbior danych?
-        Log.d("pakiet", packetsCache.get(0).toString());
+        //Log.d("pakiet", packetsCache.get(0).toString());
         final int packetsCacheSize = packetsCache.size();
         if (mPacketsCacheLastSize != packetsCacheSize) {        // Only if the buffer has changed
 
@@ -694,6 +696,16 @@ public abstract class UartBaseFragment extends ConnectedPeripheralFragment imple
 
             final byte[] bytes = newPacket.getData();
             final String formattedData = mShowDataInHexFormat ? BleUtils.bytesToHex2(bytes) : BleUtils.bytesToText(bytes, true);
+            String[] Split = formattedData.split(" ", 2);
+
+            if (Split.length == 2) {
+                // Store these values into a MapFragment method
+                MapFragment mapFragment = (MapFragment) getActivity().getSupportFragmentManager().findFragmentByTag("MapFragment");
+                if (mapFragment != null) {
+                    mapFragment.updateBluetoothData(Split[0], Split[1]);
+                }
+            }
+
             addTextToSpanBuffer(mTextSpanBuffer, formattedData, color, isBold);
         }
     }
@@ -704,6 +716,8 @@ public abstract class UartBaseFragment extends ConnectedPeripheralFragment imple
         final byte[] bytes = packet.getData();
         final String formattedData = useHexMode ? BleUtils.bytesToHex2(bytes) : BleUtils.bytesToText(bytes, true);
         final SpannableString formattedString = new SpannableString(formattedData);
+        packetData = formattedString.toString();
+        Log.d("test",packetData.toString());
         formattedString.setSpan(new ForegroundColorSpan(color), 0, formattedString.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         if (isBold) {
             formattedString.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), 0, formattedString.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -847,7 +861,7 @@ public abstract class UartBaseFragment extends ConnectedPeripheralFragment imple
     // endregion
 
     // region UartPacketManagerBase.Listener
-
+    // SPACJA ROZDZIELA STRING
     @Override
     public void onUartPacket(UartPacket packet) {
         updateBytesUI();

@@ -56,7 +56,8 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
     private long startTime = 0;
     private GeoPoint lastKnownLocation;
     private double distance = 0.0; // Przebyty dystans w metrach
-
+    public String Longtitude;
+    public String Latitude;
     private Marker locationMarker;
     private Marker startMarker;
     private Marker stopMarker;
@@ -119,6 +120,13 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
         mapView.getOverlays().add(trackLine);
     }
 
+    public void updateBluetoothData(String part1, String part2) {
+        this.Latitude = part1;
+        this.Longtitude = part2;
+
+        // You can now use these values within the map fragment
+        Log.d("BluetoothData", "Part 1: " + part1 + ", Part 2: " + part2);
+    }
 
     private void toggleTimer() {
         if (!isRunning && btnTimer.getText().equals("Start")) {
@@ -217,9 +225,11 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
 
                     // Sprawdzenie dokładności lokalizacji
                     if (newLocation.hasAccuracy() && newLocation.getAccuracy() < 20.0) {
+                        Log.d("long","a"+Longtitude);
+                        Log.d("lat","b"+Latitude);
                         GeoPoint newGeoPoint = new GeoPoint(newLocation.getLatitude(), newLocation.getLongitude());
 
-                        // **Centrowanie mapy przy pierwszym odświeżeniu lokalizacji**
+                        // **Centrowanie mapy przy pierwszym odświeżeniu lokalizacji** kurwa kurwa chuj chuj nie dziala
                         if (lastKnownLocation == null) {
                             mapView.getController().setCenter(newGeoPoint);
                             mapView.getController().setZoom(17.0);
@@ -229,12 +239,12 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
                         if (isRunning) {
                             if (lastKnownLocation != null) {
                                 Location previousLocation = new Location("");
-                                previousLocation.setLatitude(lastKnownLocation.getLatitude());
-                                previousLocation.setLongitude(lastKnownLocation.getLongitude());
+                                previousLocation.setLatitude(Double.parseDouble(Longtitude));
+                                previousLocation.setLongitude(Double.parseDouble(Longtitude));
 
                                 Location currentLocation = new Location("");
-                                currentLocation.setLatitude(newGeoPoint.getLatitude());
-                                currentLocation.setLongitude(newGeoPoint.getLongitude());
+                                currentLocation.setLatitude(Double.parseDouble(Latitude));
+                                currentLocation.setLongitude(Double.parseDouble(Longtitude));
 
                                 float distanceBetweenPoints = previousLocation.distanceTo(currentLocation);
 
