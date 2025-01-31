@@ -229,7 +229,7 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
                         Log.d("lat","b"+Latitude);
                         GeoPoint newGeoPoint = new GeoPoint(newLocation.getLatitude(), newLocation.getLongitude());
 
-                        // **Centrowanie mapy przy pierwszym odświeżeniu lokalizacji** kurwa kurwa chuj chuj nie dziala
+                        // **Centrowanie mapy przy pierwszym odświeżeniu lokalizacji**
                         if (lastKnownLocation == null) {
                             mapView.getController().setCenter(newGeoPoint);
                             mapView.getController().setZoom(17.0);
