@@ -129,7 +129,7 @@ public class DataStorage {
     }
 
     //save data about pet
-    public void savePetInfo(String name,int age,float weight,File path){
+    public void savePetInfo(String name,int age,float weight,String bodyType,File path){
 
         try{
             File plik=new File(path,petDataFile);
@@ -146,6 +146,7 @@ public class DataStorage {
                 jobject.put("Name",name);
                 jobject.put("Age",age);
                 jobject.put("Weight",weight);
+                jobject.put("BodyType",bodyType);
 
                 osw.write(jobject.toString());
                 osw.flush();
@@ -193,11 +194,13 @@ public class DataStorage {
                 String nameValue = obj.getString("Name");
                 String ageValue = obj.getString("Age");  // Używamy poprawnego klucza "Age"
                 String weightValue = obj.getString("Weight");
+                String bodyTypeValue = obj.getString("BodyType");
 
            // Przechowujemy odczytane wartości w HashMap
            m_li.put("Name", nameValue);
            m_li.put("Age", ageValue);
            m_li.put("Weight", weightValue);
+           m_li.put("BodyType",bodyTypeValue);
 
            // Dodajemy dane do listy
            formList.add(m_li);
@@ -214,11 +217,13 @@ public class DataStorage {
            String name="no name";
            String age ="no age";
            String weight = "no weight";
+           String bodType = "medium";
 
            JSONObject jobject = new JSONObject();
            jobject.put("Name",name);
            jobject.put("Age",age);
            jobject.put("Weight",weight);
+           jobject.put("BodyType",bodType);
 
            osw.write(jobject.toString());
            osw.flush();

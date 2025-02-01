@@ -92,14 +92,47 @@ public class InformationPreview extends ConnectedPeripheralFragment implements U
             String name = placeholder.getText().toString();
 
             placeholder = getView().findViewById(R.id.editTextAge);
-            int age = Integer.parseInt(placeholder.getText().toString());
-
+            //jesli jest numerem, nie jest no age, zamieniamy na dane z placeholdera
+            int age =1;
+            if(!placeholder.getText().equals("no age")&&isaNumber(placeholder.getText().toString()))
+            {
+                TextView textView = (TextView) getActivity().findViewById(R.id.additionalInfoTextView);
+                String text = textView.getText().toString();
+                text="Informatin saved";
+                textView.setText(text);
+                age = Integer.parseInt(placeholder.getText().toString());
+            }else
+            {
+                TextView textView = (TextView) getActivity().findViewById(R.id.additionalInfoTextView);
+                String text = textView.getText().toString();
+                text="Age must be a number";
+                textView.setText(text);
+            }
+            //analogicznie dla wagi
+            float weight =1f;
             placeholder = getView().findViewById(R.id.editTextWeight);
-            float weight = Float.parseFloat(placeholder.getText().toString());
+            if(!placeholder.getText().equals("no weight")&&isaNumber(placeholder.getText().toString()))
+            {TextView textView = (TextView) getActivity().findViewById(R.id.additionalInfoTextView);
+                String text = textView.getText().toString();
+                text="Information saved";
+                textView.setText(text);
+                weight = Float.parseFloat(placeholder.getText().toString());
+            }else
+            {
+                TextView textView = (TextView) getActivity().findViewById(R.id.additionalInfoTextView);
+                String text1 = textView.getText().toString();
+                String text = text1+"\n"+"Weight must be a number";
+                textView.setText(text);
+            }
 
             File path = getActivity().getFilesDir();
 
-            dts.savePetInfo(name,age,weight, path);
+            String bodyType = bodyTypeDropdown.getSelectedItem().toString();
+            dts.savePetInfo(name,age,weight, bodyType,path);
+
+           // TextView textView = (TextView) getActivity().findViewById(R.id.additionalInfoTextView);
+            //String text = "Information saved";
+            //textView.setText(text);
 
         });
 
@@ -166,6 +199,21 @@ public class InformationPreview extends ConnectedPeripheralFragment implements U
 
         return time;
     }
+
+    public boolean isaNumber(String data)
+    {
+        char[] dataChar = data.toCharArray();
+        for(int i=0;i<dataChar.length;i++)
+        {
+            if(!Character.isDigit(dataChar[i]))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 
 
     //TODO: 2 wykresy dodac zeby widoczne byly
