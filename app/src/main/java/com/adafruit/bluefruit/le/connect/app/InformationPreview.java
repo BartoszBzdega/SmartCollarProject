@@ -5,9 +5,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,6 +22,7 @@ import com.adafruit.bluefruit.le.connect.ble.central.UartDataManager;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 
@@ -28,6 +33,8 @@ public class InformationPreview extends ConnectedPeripheralFragment implements U
     private Button editPetData;
     private Button readWalk;
     private String petDataFile = "petData.json";
+    private String[] dogBodyTypes;
+    private Spinner bodyTypeDropdown;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,6 +55,24 @@ public class InformationPreview extends ConnectedPeripheralFragment implements U
 
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        dogBodyTypes = new String[]{"miniature", "small", "medium", "big", "very big"};
+        bodyTypeDropdown = (Spinner) getActivity().findViewById(R.id.spinner);
+        // Utworzenie adaptera z danymi
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, dogBodyTypes);
+        // Przypisanie adaptera do Spinnera
+        bodyTypeDropdown.setAdapter(adapter);
+        bodyTypeDropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                String selectedCountry = dogBodyTypes[position];
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // Do nothing
+            }
+        });
 
         editPetData =(Button)getActivity().findViewById(R.id.buttonEditPet);
         buttonPetData=(Button)getActivity().findViewById(R.id.buttonPet);
