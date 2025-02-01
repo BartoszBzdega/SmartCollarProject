@@ -63,6 +63,8 @@ dependencies {
     //Charting
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 
+    //Reading Excel
+    implementation 'org.apache.poi:poi-ooxml:5.2.3' // Zależność Apache POI do obsługi plików Excel
 
     // Google Play Services
     implementation 'com.google.android.gms:play-services-base:18.2.0'

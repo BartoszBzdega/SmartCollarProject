@@ -80,7 +80,36 @@ public class InformationPreview extends ConnectedPeripheralFragment implements U
         buttonPetData.setEnabled((false));
 
         editPetData.setOnClickListener(v->{
-            buttonPetData.setEnabled(true);
+
+            //jesli edit byl wlaczaony (czyli mozliwy zapis) to musimy wylaczyc zapis i poa
+            if(buttonPetData.isEnabled())
+            {
+                buttonPetData.setEnabled(false);
+
+                TextView placeholderName = getView().findViewById(R.id.editTextName);
+                TextView placeholderAge = getView().findViewById(R.id.editTextAge);
+                TextView placeholderWeight = getView().findViewById(R.id.editTextWeight);
+                Spinner placeholderSpinner = getView().findViewById(R.id.spinner);
+                placeholderSpinner.setEnabled(false);
+                placeholderAge.setEnabled(false);
+                placeholderWeight.setEnabled(false);
+                placeholderName.setEnabled(false);
+            }else
+            {
+                //jesli bylo to wszystko wylaczone to wlaczamy
+                buttonPetData.setEnabled(true);
+
+                TextView placeholderName = getView().findViewById(R.id.editTextName);
+                TextView placeholderAge = getView().findViewById(R.id.editTextAge);
+                TextView placeholderWeight = getView().findViewById(R.id.editTextWeight);
+                Spinner placeholderSpinner = getView().findViewById(R.id.spinner);
+                placeholderSpinner.setEnabled(true);
+                placeholderAge.setEnabled(true);
+                placeholderWeight.setEnabled(true);
+                placeholderName.setEnabled(true);
+            }
+
+
 
         });
         buttonPetData.setOnClickListener(v->{
@@ -138,12 +167,15 @@ public class InformationPreview extends ConnectedPeripheralFragment implements U
                 String text = "Information saved!";
                 textView.setText(text);
                 buttonPetData.setEnabled(false);
+
+                String text2 =dts.isPetOverOrUnderWeight(bodyType,weight);
+                String placeholderS = textView.getText().toString()
+                        +"\n"+
+                        text2;
+                textView.setText(text2);
+
             }
 
-
-           // TextView textView = (TextView) getActivity().findViewById(R.id.additionalInfoTextView);
-            //String text = "Information saved";
-            //textView.setText(text);
 
         });
 
@@ -168,6 +200,7 @@ public class InformationPreview extends ConnectedPeripheralFragment implements U
             TextView placeholderName = getView().findViewById(R.id.editTextName);
             TextView placeholderAge = getView().findViewById(R.id.editTextAge);
             TextView placeholderWeight = getView().findViewById(R.id.editTextWeight);
+            Spinner placeholderSpinner = getView().findViewById(R.id.spinner);
             //has to be diabled at first
             Button sendPetInfo = getView().findViewById(R.id.buttonPet);
             sendPetInfo.setEnabled(false);
@@ -180,6 +213,26 @@ public class InformationPreview extends ConnectedPeripheralFragment implements U
             placeholderName.setText(petData.get("Name"));
             placeholderAge.setText(petData.get("Age"));
             placeholderWeight.setText(petData.get("Weight"));
+
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, dogBodyTypes);
+            placeholderSpinner.setAdapter(adapter);
+            int position = adapter.getPosition(petData.get("BodyType")); // Znajdź pozycję na podstawie wartości
+            placeholderSpinner.setSelection(position);
+
+            TextView textView = (TextView) getActivity().findViewById(R.id.additionalInfoTextView);
+            //String text = "Information saved!";
+            //textView.setText(text);
+            buttonPetData.setEnabled(false);
+            placeholderSpinner.setEnabled(false);
+            placeholderAge.setEnabled(false);
+            placeholderWeight.setEnabled(false);
+            placeholderName.setEnabled(false);
+
+            String text2 =dts.isPetOverOrUnderWeight(petData.get("BodyType"),Float.parseFloat(petData.get("Weight")));
+            String placeholderS = textView.getText().toString()
+                    +"\n"+
+                    text2;
+            textView.setText(text2);
         }
 
     }

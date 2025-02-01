@@ -287,6 +287,89 @@ public class DataStorage {
         return formList;
 
     }
+
+    //wartosci kontrolne, do ktorych sie odnosimy
+    public HashMap<String, Float> petControlData()
+    {
+        //powiedzmy ze dla malych psow i srendich powinno byc w granicy 1 kg a reszty tak do 5?
+        HashMap<String, Float> controlData = new HashMap<>();
+        controlData.put("miniature",5f);
+        controlData.put("small",7f);
+        controlData.put("medium",12f);
+        controlData.put("big",20f);
+        controlData.put("very big",30f);
+
+        return controlData;
+    }
+
+    //how long a walk SHOULD take
+    public float desiredWalkDuration(String petBodyType, float weight)
+    {
+        float dur=10;
+        HashMap<String, Float> controlData = petControlData();
+
+        float wagaKontrolna = controlData.get(petBodyType);
+
+        if(petBodyType.equals("miniature")||petBodyType.equals("small"))
+        {
+            dur = Math.max(
+                    10,
+                    30*(1+0.5f * ((wagaKontrolna - weight)/weight)*(5/weight))
+                    );
+        }
+
+        if(petBodyType.equals("medium"))
+        {
+            dur = Math.max(
+                    10,
+                    30*(1+0.5f * ((wagaKontrolna - weight)/weight)*(25/weight))
+            );
+        }
+
+        if(petBodyType.equals("big")||petBodyType.equals("very big"))
+        {
+            dur = Math.max(
+                    10,
+                    30*(1+0.5f * ((wagaKontrolna - weight)/weight)*(50/weight))
+            );
+        }
+
+        return dur;
+
+    }
+
+    public String isPetOverOrUnderWeight(String bodyType, float weight)
+    {
+      String weightAssesment="Pet has proper weight.";
+
+      HashMap<String,Float> controlBodyType = petControlData();
+
+      Float controlW = controlBodyType.get(bodyType);
+
+      //jesli jest wieksza to sprawdzamy czy nadwaga
+      if(weight>controlW)
+      {
+          //jesli waga psa jest wieksza od sredniej o 20% sredniej
+          float fractionWithWeight = weight + 0.2f*controlW;
+          if(fractionWithWeight>controlW)
+          {
+              weightAssesment="The pet is overweight.";
+          }
+      }
+
+      //jesli nie do sprawdzamy czy niedowaga
+        if(weight<controlW)
+        {
+            //jesli waga psa jest wieksza od sredniej o 20% sredniej
+            float fractionWithWeight = controlW - 0.2f*controlW;
+            if(weight<fractionWithWeight)
+            {
+                weightAssesment="The pet is underweight.";
+            }
+        }
+
+      return weightAssesment;
+    }
 }
 //TODO - stream do zapisu
 //TODO - przetetowac na zapisywaniu danych danych psa (formularz cymka)
