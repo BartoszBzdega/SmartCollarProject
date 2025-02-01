@@ -696,7 +696,8 @@ public abstract class UartBaseFragment extends ConnectedPeripheralFragment imple
 
             final byte[] bytes = newPacket.getData();
             final String formattedData = mShowDataInHexFormat ? BleUtils.bytesToHex2(bytes) : BleUtils.bytesToText(bytes, true);
-            String[] Split = formattedData.split(" ", 2);
+            String TEST_STRING = "0.00 0.00"; //TODO: DO ZMIANY W KONCOWEJ WERSJI
+            String[] Split = TEST_STRING.split(" ", 2);
 
             if (Split.length == 2) {
                 // Store these values into a MapFragment method
