@@ -87,6 +87,7 @@ public class InformationPreview extends ConnectedPeripheralFragment implements U
 
             DataStorage dts = new DataStorage();
             EditText placeholder;
+            Boolean canBeSaved = true;
 
             placeholder = getView().findViewById(R.id.editTextName);
             String name = placeholder.getText().toString();
@@ -98,11 +99,12 @@ public class InformationPreview extends ConnectedPeripheralFragment implements U
             {
                 TextView textView = (TextView) getActivity().findViewById(R.id.additionalInfoTextView);
                 String text = textView.getText().toString();
-                text="Informatin saved";
+                //text="Informatin saved";
                 textView.setText(text);
                 age = Integer.parseInt(placeholder.getText().toString());
             }else
             {
+                canBeSaved = false;
                 TextView textView = (TextView) getActivity().findViewById(R.id.additionalInfoTextView);
                 String text = textView.getText().toString();
                 text="Age must be a number";
@@ -112,23 +114,32 @@ public class InformationPreview extends ConnectedPeripheralFragment implements U
             float weight =1f;
             placeholder = getView().findViewById(R.id.editTextWeight);
             if(!placeholder.getText().equals("no weight")&&isaNumber(placeholder.getText().toString()))
-            {TextView textView = (TextView) getActivity().findViewById(R.id.additionalInfoTextView);
+            {
+                TextView textView = (TextView) getActivity().findViewById(R.id.additionalInfoTextView);
                 String text = textView.getText().toString();
-                text="Information saved";
+                //text="Information saved";
                 textView.setText(text);
                 weight = Float.parseFloat(placeholder.getText().toString());
             }else
-            {
+            {   canBeSaved = false;
                 TextView textView = (TextView) getActivity().findViewById(R.id.additionalInfoTextView);
                 String text1 = textView.getText().toString();
                 String text = text1+"\n"+"Weight must be a number";
                 textView.setText(text);
             }
 
-            File path = getActivity().getFilesDir();
+            if(canBeSaved)
+            {
+                File path = getActivity().getFilesDir();
 
-            String bodyType = bodyTypeDropdown.getSelectedItem().toString();
-            dts.savePetInfo(name,age,weight, bodyType,path);
+                String bodyType = bodyTypeDropdown.getSelectedItem().toString();
+                dts.savePetInfo(name,age,weight, bodyType,path);
+                TextView textView = (TextView) getActivity().findViewById(R.id.additionalInfoTextView);
+                String text = "Information saved!";
+                textView.setText(text);
+                buttonPetData.setEnabled(false);
+            }
+
 
            // TextView textView = (TextView) getActivity().findViewById(R.id.additionalInfoTextView);
             //String text = "Information saved";
