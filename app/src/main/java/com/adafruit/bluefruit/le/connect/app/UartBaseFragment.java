@@ -36,6 +36,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -129,6 +130,8 @@ public abstract class UartBaseFragment extends ConnectedPeripheralFragment imple
 
     protected int mMode;
 
+    public UartViewModel uartViewModel;;
+
     private KeyboardUtils.SoftKeyboardToggleListener mKeyboardListener = new KeyboardUtils.SoftKeyboardToggleListener() {
         @Override
         public void onToggleSoftKeyboard(boolean isVisible) {
@@ -144,6 +147,7 @@ public abstract class UartBaseFragment extends ConnectedPeripheralFragment imple
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        uartViewModel = new ViewModelProvider(requireActivity()).get(UartViewModel.class);
         setRetainInstance(true);
         if (getArguments() != null) {
             mMode = getArguments().getInt(ARG_MODE);
@@ -697,18 +701,26 @@ public abstract class UartBaseFragment extends ConnectedPeripheralFragment imple
             final byte[] bytes = newPacket.getData();
             final String formattedData = mShowDataInHexFormat ? BleUtils.bytesToHex2(bytes) : BleUtils.bytesToText(bytes, true);
             String TEST_STRING = "0.00 0.00"; //TODO: DO ZMIANY W KONCOWEJ WERSJI
+            SendData(formattedData);
             String[] Split = formattedData.split(" ", 2);
 
             if (Split.length > 1) {
                 // Store these values into a MapFragment method
                 MapFragment mapFragment = (MapFragment) getActivity().getSupportFragmentManager().findFragmentByTag("MapFragment");
                 if (mapFragment != null) {
-                    mapFragment.updateBluetoothData(Split[0], Split[1]);
+
+                    //mapFragment.updateBluetoothData(Split[0], Split[1]);
                 }
             }
 
             addTextToSpanBuffer(mTextSpanBuffer, formattedData, color, isBold);
         }
+    }
+
+
+    private void SendData(String data)
+    {
+        uartViewModel.setBluetoothData(data);
     }
 
 

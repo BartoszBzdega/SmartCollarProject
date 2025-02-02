@@ -20,6 +20,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.adafruit.bluefruit.le.connect.R;
 import com.adafruit.bluefruit.le.connect.ble.central.UartDataManager;
@@ -43,7 +44,7 @@ import java.util.List;
 public class MapFragment extends ConnectedPeripheralFragment implements UartDataManager.UartDataManagerListener {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-
+    UartViewModel uartViewModel;
     private MapView mapView;
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
@@ -75,6 +76,8 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
         dataStorage = new DataStorage();
     }
 
+
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_map, container, false);
@@ -83,7 +86,13 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        uartViewModel = new ViewModelProvider(requireActivity()).get(UartViewModel.class);
+        uartViewModel.getBluetoothData().observe(getViewLifecycleOwner(), data -> {
+            // Obsługa aktualizacji danych w MapFragment
+            Log.d("MapFragment", "Nowe dane UART: " + data);
+            String[] Split = data.split(" ", 2);
+            updateBluetoothData(Split[0],Split[1]);
+        });
         mapView = view.findViewById(R.id.map_view);
         mapView.setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK);
         mapView.setMultiTouchControls(true);
@@ -129,6 +138,7 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
         // You can now use these values within the map fragment
         Log.d("BluetoothData", "Part 1: " + part1 + ", Part 2: " + part2);
     }
+
 
     private void toggleTimer() {
         if (!isRunning && btnTimer.getText().equals("Start")) {
