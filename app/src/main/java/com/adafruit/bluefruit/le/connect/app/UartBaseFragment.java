@@ -700,11 +700,11 @@ public abstract class UartBaseFragment extends ConnectedPeripheralFragment imple
 
             final byte[] bytes = newPacket.getData();
             final String formattedData = mShowDataInHexFormat ? BleUtils.bytesToHex2(bytes) : BleUtils.bytesToText(bytes, true);
-            String TEST_STRING = "0.00 0.00"; //TODO: DO ZMIANY W KONCOWEJ WERSJI
-            SendData(formattedData);
+            String TEST_STRING = "0.00 0.00"; //TODO: DO ZMIANY W KONCOWEJ WERSJi
             String[] Split = formattedData.split(" ", 2);
-
+            Log.d("UART", "Odebrano pakiet: " + formattedData);
             if (Split.length > 1) {
+                SendData(formattedData);
                 // Store these values into a MapFragment method
                 MapFragment mapFragment = (MapFragment) getActivity().getSupportFragmentManager().findFragmentByTag("MapFragment");
                 if (mapFragment != null) {
@@ -720,6 +720,7 @@ public abstract class UartBaseFragment extends ConnectedPeripheralFragment imple
 
     private void SendData(String data)
     {
+        Log.d("UART", "Wysyłanie danych do ViewModel: " + data);
         uartViewModel.setBluetoothData(data);
     }
 

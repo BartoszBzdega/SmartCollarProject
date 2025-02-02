@@ -57,8 +57,8 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
     private long startTime = 0;
     private GeoPoint lastKnownLocation;
     private double distance = 0.0; // Przebyty dystans w metrach
-    public String Longtitude = "0.00";
-    public String Latitude = "0.00";
+    public String Longtitude = "50.00";
+    public String Latitude = "14.00";
     private Marker locationMarker;
     private Marker startMarker;
     private Marker stopMarker;
@@ -132,11 +132,30 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
     }
 
     public void updateBluetoothData(String part1, String part2) {
-        Latitude = part1;
-        Longtitude = part2;
+        try {
+            Latitude = part1;
+            Longtitude = part2;
 
-        // You can now use these values within the map fragment
-        Log.d("BluetoothData", "Part 1: " + part1 + ", Part 2: " + part2);
+            GeoPoint newLocation = new GeoPoint(Double.parseDouble(Latitude), Double.parseDouble(Longtitude));
+            lastKnownLocation = newLocation; // Aktualizacja pozycji
+
+            Log.d("BluetoothData", "Nowe współrzędne: Lat=" + Latitude + ", Lng=" + Longtitude);
+
+            // Aktualizacja markera lokalizacji
+            if (locationMarker == null) {
+                locationMarker = new Marker(mapView);
+                locationMarker.setTitle("Obecna lokalizacja");
+                locationMarker.setIcon(scaleMarkerIcon(R.drawable.ic_user_location, 0.1f));
+                locationMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+                mapView.getOverlays().add(locationMarker);
+            }
+
+            locationMarker.setPosition(newLocation);
+            mapView.getController().animateTo(newLocation);
+            mapView.invalidate();
+        } catch (Exception e) {
+            Log.e("BluetoothData", "Błąd aktualizacji pozycji", e);
+        }
     }
 
 
