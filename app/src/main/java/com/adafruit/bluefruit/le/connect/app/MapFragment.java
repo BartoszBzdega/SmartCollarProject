@@ -56,8 +56,8 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
     private long startTime = 0;
     private GeoPoint lastKnownLocation;
     private double distance = 0.0; // Przebyty dystans w metrach
-    public String Longtitude;
-    public String Latitude;
+    public String Longtitude = "0.00";
+    public String Latitude = "0.00";
     private Marker locationMarker;
     private Marker startMarker;
     private Marker stopMarker;
@@ -118,11 +118,13 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
         trackLine = new Polyline();
         trackLine.setWidth(10f);
         mapView.getOverlays().add(trackLine);
+
+        requestLocationUpdates();
     }
 
     public void updateBluetoothData(String part1, String part2) {
-        this.Latitude = part1;
-        this.Longtitude = part2;
+        Latitude = part1;
+        Longtitude = part2;
 
         // You can now use these values within the map fragment
         Log.d("BluetoothData", "Part 1: " + part1 + ", Part 2: " + part2);
@@ -227,7 +229,7 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
                     if (newLocation.hasAccuracy() && newLocation.getAccuracy() < 20.0) {
                         Log.d("long","a"+Longtitude);
                         Log.d("lat","b"+Latitude);
-                        GeoPoint newGeoPoint = new GeoPoint(newLocation.getLatitude(), newLocation.getLongitude());
+                        GeoPoint newGeoPoint = new GeoPoint(Double.parseDouble(Latitude), Double.parseDouble(Longtitude));
 
                         // **Centrowanie mapy przy pierwszym odświeżeniu lokalizacji**
                         if (lastKnownLocation == null) {
@@ -239,7 +241,7 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
                         if (isRunning) {
                             if (lastKnownLocation != null) {
                                 Location previousLocation = new Location("");
-                                previousLocation.setLatitude(Double.parseDouble(Longtitude));
+                                previousLocation.setLatitude(Double.parseDouble(Latitude));
                                 previousLocation.setLongitude(Double.parseDouble(Longtitude));
 
                                 Location currentLocation = new Location("");
@@ -283,11 +285,11 @@ public class MapFragment extends ConnectedPeripheralFragment implements UartData
     private void updateMapWithLocation(Location location) {
         if (location == null) return;
 
-        lastKnownLocation = new GeoPoint(location.getLatitude(), location.getLongitude());
+        lastKnownLocation = new GeoPoint(Double.parseDouble(Latitude), Double.parseDouble(Longtitude));
 
         if (locationMarker == null) {
             locationMarker = new Marker(mapView);
-            locationMarker.setTitle("Twoja lokalizacja");
+            locationMarker.setTitle("Lokalizacja obrozy");
             locationMarker.setIcon(scaleMarkerIcon(R.drawable.ic_user_location, 0.1f));
             locationMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
             mapView.getOverlays().add(locationMarker);
