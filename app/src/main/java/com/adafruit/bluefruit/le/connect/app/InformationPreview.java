@@ -228,11 +228,13 @@ public class InformationPreview extends ConnectedPeripheralFragment implements U
             placeholderWeight.setEnabled(false);
             placeholderName.setEnabled(false);
 
-            String text2 =dts.isPetOverOrUnderWeight(petData.get("BodyType"),Float.parseFloat(petData.get("Weight")));
-            String placeholderS = textView.getText().toString()
-                    +"\n"+
-                    text2;
-            textView.setText(text2);
+            if(!petData.get("Weight").equals("no weight")) {
+                String text2 = dts.isPetOverOrUnderWeight(petData.get("BodyType"), Float.parseFloat(petData.get("Weight")));
+                String placeholderS = textView.getText().toString()
+                        + "\n" +
+                        text2;
+                textView.setText(text2);
+            }
         }
 
     }
