@@ -20,6 +20,8 @@ import com.adafruit.bluefruit.le.connect.R;
 import com.adafruit.bluefruit.le.connect.ble.central.UartDataManager;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.LimitLine;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
@@ -223,6 +225,8 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
         DataStorage dts = new DataStorage();
 
         ArrayList<HashMap<String, String>> formList = dts.readWalkData(getActivity().getFilesDir());
+        ArrayList<HashMap<String, String>> petDataList = dts.readPetInfo(getActivity().getFilesDir());
+        HashMap<String, String> petData = petDataList.get(0);
 
         int maxNumOfFields =formList.size();
 
@@ -265,6 +269,19 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
             gradientFills.add(new GradientColor(startColor5, endColor5));
             set1.setGradientColors(gradientFills);
 
+            //sprawdzamy czy jest z czego odczytac
+            if(petData.get("Weight").toString().equals("no weitght")||
+                    petData.get("Weight").toString().equals("no weitght"))
+            {
+                //nie zaznaczamylinii bo nie ma danych jak wagi czy cos, nie bylo to rszane wec wyjebue
+            }else
+            {
+                //sa dane wiec dopierdalamy liniee
+                float weight = Float.parseFloat(petData.get("Weight").toString());
+                float val = dts.desiredWalkDuration(petData.get("BodyType").toString(),weight);
+                addLimitLineToChart(val);
+            }
+
             ArrayList<IBarDataSet> dataSets = new ArrayList<>();
             dataSets.add(set1);
 
@@ -306,5 +323,22 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
         setDataTime(7,100);
         chart.invalidate();  // Refresh the chart with new data
         chartTime.invalidate();
+    }
+
+    private void addLimitLineToChart(float val) {
+        // Stała wartość, na której chcesz dodać linię
+        float constantValue = 0.2f; // Przykład: stała wartość, której chcesz porównać słupki
+        constantValue = val;
+        // Pobierz oś Y wykresu
+        YAxis leftAxis = chartTime.getAxisLeft();
+
+        // Tworzymy LimitLine (poziomą linię)
+        LimitLine limitLine = new LimitLine(constantValue, "Próg"); // Próg, który wyświetlimy na wykresie
+        limitLine.setLineWidth(2f); // Grubość linii
+        limitLine.setLineColor(ContextCompat.getColor(getContext(), android.R.color.holo_red_light)); // Kolor linii
+        limitLine.setTextSize(10f); // Rozmiar tekstu
+
+        // Dodajemy linię do osi Y (lewej osi)
+        leftAxis.addLimitLine(limitLine);
     }
 }
