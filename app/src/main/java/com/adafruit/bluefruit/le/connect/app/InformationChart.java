@@ -270,8 +270,8 @@ public class InformationChart extends ConnectedPeripheralFragment implements Uar
             set1.setGradientColors(gradientFills);
 
             //sprawdzamy czy jest z czego odczytac
-            if(petData.get("Weight").toString().equals("no weitght")||
-                    petData.get("Weight").toString().equals("no weitght"))
+            if(petData.get("Weight").toString().equals("no weight")||
+                    petData.get("Weight").toString().equals("no weight"))
             {
                 //nie zaznaczamylinii bo nie ma danych jak wagi czy cos, nie bylo to rszane wec wyjebue
             }else
